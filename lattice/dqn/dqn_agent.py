@@ -7,13 +7,14 @@ from stable_baselines3.common.evaluation import evaluate_policy
 
 # Create environment
 # env = gym.make('LunarLander-v2')
-seq = 'HHHH'
+seq = 'HHPPHHPH' # Our input sequence
+seq = seq.upper()
 env = Lattice2DEnv(seq)
 
 # Instantiate the agent
-model = DQN('MlpPolicy', env, verbose=1)
-# Train the agent
-model.learn(total_timesteps=int(2e5))
+model = DQN('MlpPolicy', env, verbose=1, exploration_fraction=0.2, exploration_final_eps=0.1)
+
+model.learn(total_timesteps=int(2e7))
 # Save the agent
 model.save("dqn_lattice")
 del model  # delete trained model to demonstrate loading

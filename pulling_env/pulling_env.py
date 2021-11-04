@@ -124,9 +124,8 @@ class Pulling2DEnv(gym.Env):
 
         # Define action-observation spaces
         self.action_space = spaces.Discrete(4)
-        self.observation_space = spaces.Box(low=-1, high=1,
-                                            shape=(self.grid_length, self.grid_length),
-                                            dtype=int)
+        #[node, action]
+        self.observation_space = spaces.MultiDiscrete([ len(seq), 4])
 
         # Initialize values
         self.reset()

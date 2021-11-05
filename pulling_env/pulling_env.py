@@ -22,6 +22,9 @@ POLY_TO_INT = {
     'H' : 1, 'P' : -1
 }
 
+# grid buffer
+BUFFER = 2
+
 class Pulling2DEnv(gym.Env):
     """A 2-dimensional lattice environment from Dill and Lau, 1989
     [dill1989lattice]_.
@@ -114,18 +117,19 @@ class Pulling2DEnv(gym.Env):
                          (trap_penalty, type(trap_penalty)))
             raise
 
-        # Grid attributes
-        
-        if len(seq) % 2 == 0:
-            self.grid_length = len(seq) + 3
-        else:
-            self.grid_length = len(seq) + 2
-        self.midpoint = (int((self.grid_length - 1) / 2), int((self.grid_length - 1) / 2))
+        # Grid attributes 
+        # if len(seq) % 2 == 0:
+        #     self.grid_length = len(seq) + 3
+        # else:
+        #     self.grid_length = len(seq) + 2
+        # self.midpoint = (int((self.grid_length - 1) / 2), int((self.grid_length - 1) / 2))
+        self.grid_length = len( seq ) + 2 * BUFFER
 
         # Define action-observation spaces
         self.action_space = spaces.Discrete(4)
-        #[node, action]
-        self.observation_space = spaces.MultiDiscrete([ len(seq), 4])
+        self.observation_space = spaces.Box(low=-2, high=1,
+                                            shape=(self.grid_length, self.grid_length),
+                                            dtype=int)
 
         # Initialize values
         self.reset()
@@ -236,15 +240,19 @@ class Pulling2DEnv(gym.Env):
 
     def reset(self):
         """Resets the environment"""
-        self.state = OrderedDict({(0, 0) : self.seq[0]})
         self.actions = []
         self.collisions = 0
         self.trapped = 0
-        self.done = len(self.seq) == 1
+        # self.done = len(self.seq) == 1
 
         self.grid = np.zeros(shape=(self.grid_length, self.grid_length), dtype=int)
-        # Automatically assign first element into grid
-        self.grid[self.midpoint] = POLY_TO_INT[self.seq[0]]
+        self.mid_row = self.grid_length // 2
+        self.state = []
+
+        # place entire chain on grid 
+        for i in range( len( self.seq ) ):
+            self.grid[ self.mid_row, BUFFER + i ] = POLY_TO_INT[ self.seq[i] ]
+            self.state.append( (BUFFER+i, self.mid_row) )
 
         self.last_action = None
         return self.grid
@@ -441,3 +449,19 @@ class Pulling2DEnv(gym.Env):
         gibbs_energy = nb_h_adjacent - h_consecutive
         reward = - gibbs_energy
         return int(reward)
+
+    def step_new( self, action ):
+        '''
+        New step function for pulling environment
+        '''
+
+        node, pull_dir = action
+        if ACTION_TO_STR[ pull_dir ] == 'UR':
+            pass
+            # check if pull is valid
+            # check if corner is free
+            # if corner is not free, perform pull and we are done
+            # if corner is free, need to pull entire chain until valid config is reached
+        else:
+            assert False and 'Unsupported action'
+        

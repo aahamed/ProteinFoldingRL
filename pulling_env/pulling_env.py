@@ -16,7 +16,11 @@ from six import StringIO
 # Human-readable
 ACTION_TO_STR = {
     0 : 'UL', 1 : 'UR',
-    2 : 'BL', 3 : 'BR'}
+    2 : 'DL', 3 : 'DR'}
+
+STR_TO_ACTION = {
+    'UL': 0, 'UR': 1,
+    'DL': 2, 'DR': 3 }
 
 POLY_TO_INT = {
     'H' : 1, 'P' : -1
@@ -247,12 +251,12 @@ class Pulling2DEnv(gym.Env):
 
         self.grid = np.zeros(shape=(self.grid_length, self.grid_length), dtype=int)
         self.mid_row = self.grid_length // 2
-        self.state = []
+        self.chain = []
 
         # place entire chain on grid 
         for i in range( len( self.seq ) ):
             self.grid[ self.mid_row, BUFFER + i ] = POLY_TO_INT[ self.seq[i] ]
-            self.state.append( (BUFFER+i, self.mid_row) )
+            self.chain.append( (self.mid_row, BUFFER+i) )
 
         self.last_action = None
         return self.grid
@@ -262,7 +266,8 @@ class Pulling2DEnv(gym.Env):
 
         outfile = StringIO() if mode == 'ansi' else sys.stdout
         # Flip so highest y-value row is printed first
-        desc = np.flipud(self.grid).astype(str)
+        # desc = np.flipud(self.grid).astype(str)
+        desc = self.grid.astype( str )
 
         # Convert everything to human-readable symbols
         desc[desc == '0'] = '*'
@@ -328,7 +333,7 @@ class Pulling2DEnv(gym.Env):
 
         return adjacent_coords
 
-    def _draw_grid(self, chain):
+    def _draw_grid_old(self, chain):
         """Constructs a grid with the current chain
 
         Parameters
@@ -348,6 +353,18 @@ class Pulling2DEnv(gym.Env):
             self.grid[(trans_y, trans_x)] = POLY_TO_INT[poly]
 
         return np.flipud(self.grid)
+
+    def set_chain( self, chain ):
+        '''
+        Construct a grid from chain
+
+        :param chain: List of (row, col) coordinates. The i^th coord corresponds
+        to i^th node in sequence
+        '''
+        self.grid = np.zeros( ( self.grid_length, self.grid_length ), dtype=int )
+        self.chain = chain
+        for i, ( row, col ) in enumerate( self.chain ):
+            self.grid[ row, col ] = POLY_TO_INT[ self.seq[i] ]
 
     def _compute_reward(self, is_trapped, collision):
         """Computes the reward for a given time step
@@ -464,4 +481,30 @@ class Pulling2DEnv(gym.Env):
             # if corner is free, need to pull entire chain until valid config is reached
         else:
             assert False and 'Unsupported action'
+    
+    def verify_chain( self, exp_chain ):
+        '''
+        Verify current chain matches exp_chain
+
+        :param exp_chain: List of expected coordinates ( row, col )
+        :return: True if chain matches False o.w.
+        '''
+
+        if len( exp_chain ) != len( self.chain ): return False
+
+        for i in range( len( exp_chain ) ):
+            if exp_chain[i] != self.chain[i]:
+                return False
         
+        chain_map = { (row, col):POLY_TO_INT[self.seq[i]] for i, (row, col) 
+                in enumerate( exp_chain ) }
+       
+        # check to ensure chain is placed on grid correctly
+        for i in range( len( self.grid ) ):
+            for j in range( len( self.grid ) ):
+                if (i, j) in chain_map:
+                    if self.grid[i, j] != chain_map[i, j]: return False
+                else:
+                    if self.grid[i, j] != 0: return False
+
+        return True

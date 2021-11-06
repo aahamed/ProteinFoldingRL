@@ -194,7 +194,8 @@ class Pulling2DEnv(gym.Env):
         if not self.action_space.contains(action):
             raise ValueError("%r (%s) invalid" % (action, type(action)))
 
-        #collision will include invalid actions
+        self.last_action = action
+        is_trapped = False # Trap signal
         collision = False  # Collision signal
         # Obtain coordinate of previous polymer
         x, y = next(reversed(self.state))

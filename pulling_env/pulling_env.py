@@ -122,11 +122,12 @@ class Pulling2DEnv(gym.Env):
             self.grid_length = len(seq) + 2
         self.midpoint = (int((self.grid_length - 1) / 2), int((self.grid_length - 1) / 2))
 
-        # Define action-observation spaces
-        self.action_space = spaces.Discrete(4)
         #[node, action]
-        self.observation_space = spaces.MultiDiscrete([ len(seq), 4])
+        self.action_space = spaces.MultiDiscrete([ len(seq), 4])
 
+        self.observation_space = spaces.Box(low=-2, high=1,
+                                            shape=(self.grid_length, self.grid_length),
+                                            dtype=int)
         # Initialize values
         self.reset()
 
@@ -187,8 +188,7 @@ class Pulling2DEnv(gym.Env):
         if not self.action_space.contains(action):
             raise ValueError("%r (%s) invalid" % (action, type(action)))
 
-        self.last_action = action
-        is_trapped = False # Trap signal
+        #collision will include invalid actions
         collision = False  # Collision signal
         # Obtain coordinate of previous polymer
         x, y = next(reversed(self.state))

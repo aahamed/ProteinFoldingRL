@@ -507,3 +507,26 @@ class Pulling2DEnv(gym.Env):
                     if self.grid[i, j] != 0: return False
 
         return True
+
+    def _get_diag_coords(self, coords):
+        """Obtains all adjacent coordinates of the current position
+
+        Parameters
+        ----------
+        coords : 2-tuple
+            Coordinates (X-y) of the current position
+
+        Returns
+        -------
+        dictionary
+            All adjacent coordinates
+        """
+        x, y = coords
+        diag_coords = {
+            0 : (x - 1, y + 1),
+            1 : (x + 1, y + 1),
+            2 : (x - 1, y - 1),
+            3 : (x + 1, y - 1),
+        }
+
+        return diag_coords

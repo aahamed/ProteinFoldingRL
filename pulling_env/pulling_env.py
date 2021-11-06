@@ -489,6 +489,7 @@ class Pulling2DEnv(gym.Env):
         if collision is False:
 
             #apply update
+            #want to store the previous timesteps nodes as this will be used to update the other nodes
             old_locations_left = [self.state[node][0]]
             old_locations_right = [self.state[node][0]]
             self.state[node][0] = next_move

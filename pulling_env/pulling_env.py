@@ -478,9 +478,10 @@ class Pulling2DEnv(gym.Env):
         diag_coords = self._get_diag_coords((x, y))
         next_move = diag_coords[pull_dir]
 
+        # if the new location already has a node there
         collision = get_collision(next_move) # Collision signal
-        #adjacent nodes
-        
+
+        # if the new location doesn't have any adjacent nodes
         if collision is False:
             collision = get_invalid_move(next_move, self.state[node - 1][0], self.state[node + 1][0])
 
@@ -491,26 +492,31 @@ class Pulling2DEnv(gym.Env):
             current_node = next_move
             pointer = node - 1
             left_node = self.state[pointer][0]
+            #update left side of chain
             while(node_update(current_node, left_node)):
 
-                #update the left node
+                #TODO: update the left node using pointer
                 
+                #use the newly updated left node as the next check in the next loop
+                current_node = self.state[pointer][0]
                 pointer -= 1
                 if pointer < 0:
                     break
-
                 left_node = self.state[pointer][0]
 
+            current_node = next_move
             pointer = node + 1
             right_node = self.state[pointer][0] 
+            #update right side of chain
             while(node_update(current_node, right_node)):
 
-                #update the right node
+                #TODO: update the right node using pointer
                 
+                #use the newly updated right node as the next check in the next loop
+                current_node = self.state[pointer][0]
                 pointer += 1
                 if pointer == len(self.state):
                     break
-
                 right_node = self.state[pointer][0]
 
         grid = self._draw_grid(self.state)

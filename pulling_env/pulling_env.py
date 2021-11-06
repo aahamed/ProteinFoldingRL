@@ -487,15 +487,32 @@ class Pulling2DEnv(gym.Env):
 
         #update chain, go to next state
         if collision is False:
+
+            #apply update
+            old_locations_left = [self.state[node][0]]
+            old_locations_right = [self.state[node][0]]
+            self.state[node][0] = next_move
+
             #update left
             
             current_node = next_move
             pointer = node - 1
             left_node = self.state[pointer][0]
+            closest_node = True
             #update left side of chain
             while(node_update(current_node, left_node)):
 
-                #TODO: update the left node using pointer
+                #update the left node with the node two spots closer to the other node
+                #this means we do not have an already looked at spot for the next iteration
+                if closest_node is True:
+                    #TODO:#####
+                    closest_node = False
+                    old_locations_left.append(left_node)
+                else:
+                    old_location = old_locations_left.pop(0)
+                    self.state[pointer][0] = old_location
+                    old_locations_left.append(left_node)
+
                 
                 #use the newly updated left node as the next check in the next loop
                 current_node = self.state[pointer][0]
@@ -506,11 +523,19 @@ class Pulling2DEnv(gym.Env):
 
             current_node = next_move
             pointer = node + 1
-            right_node = self.state[pointer][0] 
+            right_node = self.state[pointer][0]
+            closest_node = True
             #update right side of chain
             while(node_update(current_node, right_node)):
 
-                #TODO: update the right node using pointer
+                if closest_node is True:
+                    #TODO:#####
+                    closest_node = False
+                    old_locations_right.append(right_node)
+                else:
+                    old_location = old_locations_right.pop(0)
+                    self.state[pointer][0] = old_location
+                    old_locations_right.append(right_node)
                 
                 #use the newly updated right node as the next check in the next loop
                 current_node = self.state[pointer][0]

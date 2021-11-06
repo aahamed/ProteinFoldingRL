@@ -472,14 +472,72 @@ class Pulling2DEnv(gym.Env):
         '''
 
         node, pull_dir = action
-        if ACTION_TO_STR[ pull_dir ] == 'UR':
-            pass
-            # check if pull is valid
-            # check if corner is free
-            # if corner is not free, perform pull and we are done
-            # if corner is free, need to pull entire chain until valid config is reached
-        else:
-            assert False and 'Unsupported action'
+
+        x, y = self.state[node][0]
+
+        diag_coords = self._get_diag_coords((x, y))
+        next_move = diag_coords[pull_dir]
+
+        collision = get_collision(next_move) # Collision signal
+        #adjacent nodes
+        
+        if collision is False:
+            collision = get_invalid_move(next_move, self.state[node - 1][0], self.state[node + 1][0])
+
+        #update chain, go to next state
+        if collision is False:
+            #update left
+            
+            current_node = next_move
+            pointer = node - 1
+            left_node = self.state[pointer][0]
+            while(node_update(current_node, left_node)):
+
+                #update the left node
+                
+                pointer -= 1
+                if pointer < 0:
+                    break
+
+                left_node = self.state[pointer][0]
+
+            pointer = node + 1
+            right_node = self.state[pointer][0] 
+            while(node_update(current_node, right_node)):
+
+                #update the right node
+                
+                pointer += 1
+                if pointer == len(self.state):
+                    break
+
+                right_node = self.state[pointer][0]
+
+        grid = self._draw_grid(self.state)
+        #TODO: what do we do with self.done?
+        # self.done = True if (len(self.state) == len(self.seq) or is_trapped) else False
+        reward = self._compute_reward(False, collision)
+        info = {
+            'chain_length' : len(self.state),
+            'seq_length'   : len(self.seq),
+            'collisions'   : self.collisions,
+            'actions'      : [ACTION_TO_STR[i] for i in self.actions],
+            'is_trapped'   : is_trapped,
+            'state_chain'  : self.state
+        }
+
+        return (grid, reward, self.done, info)
+            
+
+        # else:
+        # if ACTION_TO_STR[ pull_dir ] == 'UR':
+        #     pass
+        #     # check if pull is valid
+        #     # check if corner is free
+        #     # if corner is not free, perform pull and we are done
+        #     # if corner is free, need to pull entire chain until valid config is reached
+        # else:
+        #     assert False and 'Unsupported action'
     
     def verify_chain( self, exp_chain ):
         '''
@@ -530,3 +588,44 @@ class Pulling2DEnv(gym.Env):
         }
 
         return diag_coords
+
+    def get_collision(self, next_move):
+        trans_x, trans_y = tuple(sum(x) for x in zip(self.midpoint, next_move))
+
+        #out of bounds
+        if trans_x >= self.grid_length or trans_x < 0 or trans_y < 0 or trans_y >= self.grid_length:
+            logger.warn('Your agent was out of bounds! Ending the episode.')
+            self.collisions += 1
+            return True
+        else:
+            #pair = ((0,0), 'H')
+            for pair in self.state:
+                state_coord = pair[0]
+                if state_coord = next_move:
+                    self.collisions += 1
+                    return True
+
+        return False
+
+    def get_invalid_move(self, current_node, left_node, right_node):
+
+        cn_x, cn_y = current_node
+        ln_x, ln_y = left_node
+        rn_x, rn_y = right_node
+
+        if cn_x == ln_x or cn_y == ln_y:
+            return False
+        elif cn_x == rn_x or cn_x == rn_y:
+            return False
+
+        return True
+
+    def node_update(self, current_node, next_node):
+        cn_x, cn_y = current_node
+        ln_x, ln_y = next_node
+
+        if cn_x == ln_x or cn_y == ln_y:
+            return False
+
+        return True
+

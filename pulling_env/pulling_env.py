@@ -633,7 +633,7 @@ class Pulling2DEnv(gym.Env):
             #pair = ((0,0), 'H')
             for pair in self.state:
                 state_coord = pair[0]
-                if state_coord = next_move:
+                if state_coord == next_move:
                     self.collisions += 1
                     return True
 

@@ -507,7 +507,7 @@ class Pulling2DEnv(gym.Env):
                 #update the left node with the node two spots closer to the other node
                 #this means we do not have an already looked at spot for the next iteration
                 if closest_node is True:
-                    new_pos = get_intermediate(current_node, action)
+                    new_pos = self.get_intermediate(current_node, action)
                     self.state[pointer][0] = new_pos
                     closest_node = False
                     old_locations_left.append(left_node)
@@ -532,7 +532,7 @@ class Pulling2DEnv(gym.Env):
             while(self.node_update(current_node, right_node)):
 
                 if closest_node is True:
-                    new_pos = get_intermediate(current_node, action)
+                    new_pos = self.get_intermediate(current_node, action)
                     self.state[pointer][0] = new_pos
                     closest_node = False
                     old_locations_right.append(right_node)

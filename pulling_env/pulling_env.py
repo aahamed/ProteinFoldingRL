@@ -364,7 +364,7 @@ class Pulling2DEnv(gym.Env):
         self.chain = chain
         self.state = []
         for index in range(len(chain)):
-            self.state.append((chain[index], seq[index]))
+            self.state.append([chain[index], seq[index]])
         for i, ( row, col ) in enumerate( self.chain ):
             self.grid[ row, col ] = POLY_TO_INT[ self.seq[i] ]
 

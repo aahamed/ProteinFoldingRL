@@ -664,7 +664,8 @@ class Pulling2DEnv(gym.Env):
 
         return True
 
-    def get_intermediate(self, current_node, action)
+    def get_intermediate(self, current_node, action):
+        pass
 
     def _draw_grid_new(self, chain):
         """Constructs a grid with the current chain

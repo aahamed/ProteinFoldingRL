@@ -548,7 +548,7 @@ class Pulling2DEnv(gym.Env):
                     break
                 right_node = self.state[pointer][0]
 
-        grid = self._draw_grid(self.state)
+        grid = self._draw_grid_new(self.state)
         #TODO: what do we do with self.done?
         # self.done = True if (len(self.state) == len(self.seq) or is_trapped) else False
         reward = self._compute_reward(False, collision)
@@ -663,4 +663,24 @@ class Pulling2DEnv(gym.Env):
             return False
 
         return True
+
+    def _draw_grid_new(self, chain):
+        """Constructs a grid with the current chain
+
+        Parameters
+        ----------
+        chain : OrderedDict
+            Current chain/state
+
+        Returns
+        -------
+        numpy.ndarray
+            Grid of shape :code:`(n, n)` with the chain inside
+        """
+        for coord, poly in chain:
+            #trans_x, trans_y = tuple(sum(x) for x in zip(self.midpoint, coord))
+            x, y = coord
+            # Recall that a numpy array works by indexing the rows first
+            # before the columns, that's why we interchange.
+            self.grid[(y, x)] = POLY_TO_INT[poly]
 

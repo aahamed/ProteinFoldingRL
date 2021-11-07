@@ -558,7 +558,6 @@ class Pulling2DEnv(gym.Env):
             'seq_length'   : len(self.seq),
             'collisions'   : self.collisions,
             'actions'      : [ACTION_TO_STR[i] for i in self.actions],
-            'is_trapped'   : is_trapped,
             'state_chain'  : self.state
         }
 

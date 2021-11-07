@@ -626,9 +626,11 @@ class Pulling2DEnv(gym.Env):
 
     def get_collision(self, next_move):
         #trans_x, trans_y = tuple(sum(x) for x in zip(self.midpoint, next_move))
+        
+        y, x = next_move
 
         #out of bounds
-        if trans_x >= self.grid_length or trans_x < 0 or trans_y < 0 or trans_y >= self.grid_length:
+        if x >= self.grid_length or x < 0 or y < 0 or y >= self.grid_length:
             logger.warn('Your agent was out of bounds! Ending the episode.')
             self.collisions += 1
             return True

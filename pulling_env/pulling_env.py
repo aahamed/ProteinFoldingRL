@@ -550,6 +550,7 @@ class Pulling2DEnv(gym.Env):
 
         grid = self._draw_grid_new(self.state)
         #TODO: what do we do with self.done?
+        self.done = False
         # self.done = True if (len(self.state) == len(self.seq) or is_trapped) else False
         reward = self._compute_reward(False, collision)
         info = {

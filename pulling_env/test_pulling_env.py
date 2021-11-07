@@ -57,8 +57,7 @@ def test_pull_ur():
     # TODO
     env.step_new( action )
     env.render()
-    exp_chain = [ (3, 3), (3, 4), (2, 4) ]
-    print(env.state)
+    exp_chain = [ (1, 3), (1, 4), (2, 4) ]
     assert env.verify_chain( exp_chain )
     print( 'Test passed!' )
 

@@ -546,6 +546,7 @@ class Pulling2DEnv(gym.Env):
                     break
                 right_node = self.state[pointer][0]
 
+        print(self.state)
         grid = self._draw_grid_new(self.state)
         #TODO: what do we do with self.done?
         self.done = False

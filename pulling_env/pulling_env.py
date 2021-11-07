@@ -507,7 +507,8 @@ class Pulling2DEnv(gym.Env):
                 #update the left node with the node two spots closer to the other node
                 #this means we do not have an already looked at spot for the next iteration
                 if closest_node is True:
-                    #TODO:#####
+                    new_pos = get_intermediate(current_node, action)
+                    self.state[pointer][0] = new_pos
                     closest_node = False
                     old_locations_left.append(left_node)
                 else:
@@ -531,7 +532,8 @@ class Pulling2DEnv(gym.Env):
             while(self.node_update(current_node, right_node)):
 
                 if closest_node is True:
-                    #TODO:#####
+                    new_pos = get_intermediate(current_node, action)
+                    self.state[pointer][0] = new_pos
                     closest_node = False
                     old_locations_right.append(right_node)
                 else:
@@ -665,7 +667,27 @@ class Pulling2DEnv(gym.Env):
         return True
 
     def get_intermediate(self, current_node, action):
-        pass
+        #TODO: need to check for collision?
+
+        y, x = current_node
+
+        #UL
+        if action == 0:
+            new_node = (y+1,x)
+
+        #UR
+        elif action == 1:
+            new_node = (y+1,x)
+
+        #DL
+        elif action == 2:
+            new_node = (y-1,x)
+
+        #DR
+        elif action == 3:
+            new_node = (y-1,x)
+        
+        return new_node
 
     def _draw_grid_new(self, chain):
         """Constructs a grid with the current chain

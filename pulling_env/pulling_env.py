@@ -126,8 +126,8 @@ class Pulling2DEnv(gym.Env):
         #     self.grid_length = len(seq) + 3
         # else:
         #     self.grid_length = len(seq) + 2
-        # self.midpoint = (int((self.grid_length - 1) / 2), int((self.grid_length - 1) / 2))
         self.grid_length = len( seq ) + 2 * BUFFER
+        self.midpoint = (int((self.grid_length - 1) / 2), int((self.grid_length - 1) / 2))
 
         #[node, action]
         self.action_space = spaces.MultiDiscrete([ len(seq), 4])

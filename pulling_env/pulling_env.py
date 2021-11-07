@@ -482,11 +482,11 @@ class Pulling2DEnv(gym.Env):
         next_move = diag_coords[pull_dir]
 
         # if the new location already has a node there
-        collision = get_collision(next_move) # Collision signal
+        collision = self.get_collision(next_move) # Collision signal
 
         # if the new location doesn't have any adjacent nodes
         if collision is False:
-            collision = get_invalid_move(next_move, self.state[node - 1][0], self.state[node + 1][0])
+            collision = self.get_invalid_move(next_move, self.state[node - 1][0], self.state[node + 1][0])
 
         #update chain, go to next state
         if collision is False:
@@ -504,7 +504,7 @@ class Pulling2DEnv(gym.Env):
             left_node = self.state[pointer][0]
             closest_node = True
             #update left side of chain
-            while(node_update(current_node, left_node)):
+            while(self.node_update(current_node, left_node)):
 
                 #update the left node with the node two spots closer to the other node
                 #this means we do not have an already looked at spot for the next iteration
@@ -530,7 +530,7 @@ class Pulling2DEnv(gym.Env):
             right_node = self.state[pointer][0]
             closest_node = True
             #update right side of chain
-            while(node_update(current_node, right_node)):
+            while(self.node_update(current_node, right_node)):
 
                 if closest_node is True:
                     #TODO:#####

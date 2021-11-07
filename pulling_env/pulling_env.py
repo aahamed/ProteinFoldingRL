@@ -476,9 +476,7 @@ class Pulling2DEnv(gym.Env):
 
         node, pull_dir = action
 
-        x, y = self.state[node][0]
-
-        diag_coords = self._get_diag_coords((x, y))
+        diag_coords = self._get_diag_coords(self.state[node][0])
         next_move = diag_coords[pull_dir]
 
         # if the new location already has a node there
@@ -614,12 +612,12 @@ class Pulling2DEnv(gym.Env):
         dictionary
             All adjacent coordinates
         """
-        x, y = coords
+        y, x = coords
         diag_coords = {
-            0 : (x - 1, y + 1),
-            1 : (x + 1, y + 1),
-            2 : (x - 1, y - 1),
-            3 : (x + 1, y - 1),
+            0 : (y-1, x-1),
+            1 : (y-1, x+1),
+            2 : (y+1, x-1),
+            3 : (y+1, x+1),
         }
 
         return diag_coords
@@ -646,9 +644,9 @@ class Pulling2DEnv(gym.Env):
 
     def get_invalid_move(self, current_node, left_node, right_node):
 
-        cn_x, cn_y = current_node
-        ln_x, ln_y = left_node
-        rn_x, rn_y = right_node
+        cn_y, cn_x = current_node
+        ln_y, ln_x = left_node
+        rn_y, rn_x = right_node
 
         if cn_x == ln_x or cn_y == ln_y:
             return False
@@ -658,8 +656,8 @@ class Pulling2DEnv(gym.Env):
         return True
 
     def node_update(self, current_node, next_node):
-        cn_x, cn_y = current_node
-        ln_x, ln_y = next_node
+        cn_y, cn_x = current_node
+        ln_y, ln_x = next_node
 
         if cn_x == ln_x or cn_y == ln_y:
             return False
@@ -681,7 +679,7 @@ class Pulling2DEnv(gym.Env):
         """
         for coord, poly in chain:
             #trans_x, trans_y = tuple(sum(x) for x in zip(self.midpoint, coord))
-            x, y = coord
+            y, x = coord
             # Recall that a numpy array works by indexing the rows first
             # before the columns, that's why we interchange.
             self.grid[(y, x)] = POLY_TO_INT[poly]

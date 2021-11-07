@@ -625,7 +625,7 @@ class Pulling2DEnv(gym.Env):
         return diag_coords
 
     def get_collision(self, next_move):
-        trans_x, trans_y = tuple(sum(x) for x in zip(self.midpoint, next_move))
+        #trans_x, trans_y = tuple(sum(x) for x in zip(self.midpoint, next_move))
 
         #out of bounds
         if trans_x >= self.grid_length or trans_x < 0 or trans_y < 0 or trans_y >= self.grid_length:

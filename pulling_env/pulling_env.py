@@ -668,9 +668,9 @@ class Pulling2DEnv(gym.Env):
         ln_y, ln_x = left_node
         rn_y, rn_x = right_node
 
-        if cn_x == ln_x or cn_y == ln_y:
+        if (cn_x == ln_x and (cn_y-1 == ln_y or cn_y+1 == ln_y)) or (cn_y == ln_y and (cn_x-1 == ln_x or cn_x+1 == ln_y)):
             return False
-        elif cn_x == rn_x or cn_x == rn_y:
+        elif (cn_x == rn_x and (cn_y-1 == rn_y or cn_y+1 == rn_y)) or (cn_y == rn_y and (cn_x-1 == rn_x or cn_x+1 == rn_y)):
             return False
 
         return True
@@ -679,7 +679,7 @@ class Pulling2DEnv(gym.Env):
         cn_y, cn_x = current_node
         ln_y, ln_x = next_node
 
-        if cn_x == ln_x or cn_y == ln_y:
+        if (cn_x == ln_x and (cn_y-1 == ln_y or cn_y+1 == ln_y)) or (cn_y == ln_y and (cn_x-1 == ln_x or cn_x+1 == ln_y)):
             return False
 
         return True

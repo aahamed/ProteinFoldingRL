@@ -546,7 +546,6 @@ class Pulling2DEnv(gym.Env):
                     break
                 right_node = self.state[pointer][0]
 
-        print(self.state)
         grid = self._draw_grid_new(self.state)
         #TODO: what do we do with self.done?
         self.done = False
@@ -665,6 +664,8 @@ class Pulling2DEnv(gym.Env):
 
         return True
 
+    def get_intermediate(self, current_node, action)
+
     def _draw_grid_new(self, chain):
         """Constructs a grid with the current chain
 
@@ -678,6 +679,7 @@ class Pulling2DEnv(gym.Env):
         numpy.ndarray
             Grid of shape :code:`(n, n)` with the chain inside
         """
+        self.grid = np.zeros( ( self.grid_length, self.grid_length ), dtype=int )
         for coord, poly in chain:
             #trans_x, trans_y = tuple(sum(x) for x in zip(self.midpoint, coord))
             y, x = coord

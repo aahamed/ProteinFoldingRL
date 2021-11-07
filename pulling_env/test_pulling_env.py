@@ -45,7 +45,7 @@ def test_set_chain():
     print( 'Test passed!' )
 
 def test_pull_ur():
-    print( 'Test pull upper right' )
+    print( 'Test pull upper right node 1' )
     seq = 'HPH'
     env = Pulling2DEnv( seq )
     env.reset()
@@ -62,7 +62,7 @@ def test_pull_ur():
     print( 'Test passed!' )
 
 def test_pull_long():
-    print( 'Test pull upper right' )
+    print( 'Test pull upper right node 3' )
     seq = 'HPHHH'
     env = Pulling2DEnv( seq )
     env.reset()

@@ -670,6 +670,7 @@ class Pulling2DEnv(gym.Env):
         #TODO: need to check for collision?
 
         y, x = current_node
+        new_node = None
 
         #UL
         if action == 0:

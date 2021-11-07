@@ -730,10 +730,12 @@ class Pulling2DEnv(gym.Env):
             Grid of shape :code:`(n, n)` with the chain inside
         """
         self.grid = np.zeros( ( self.grid_length, self.grid_length ), dtype=int )
+        self.chain = []
         for coord, poly in chain:
             #trans_x, trans_y = tuple(sum(x) for x in zip(self.midpoint, coord))
             y, x = coord
             # Recall that a numpy array works by indexing the rows first
             # before the columns, that's why we interchange.
             self.grid[(y, x)] = POLY_TO_INT[poly]
+            self.chain.append( (y, x) )
 

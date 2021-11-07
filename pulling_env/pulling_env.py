@@ -677,9 +677,9 @@ class Pulling2DEnv(gym.Env):
 
     def node_update(self, current_node, next_node):
         cn_y, cn_x = current_node
-        ln_y, ln_x = next_node
+        nn_y, nn_x = next_node
 
-        if (cn_x == ln_x and (cn_y-1 == ln_y or cn_y+1 == ln_y)) or (cn_y == ln_y and (cn_x-1 == ln_x or cn_x+1 == ln_y)):
+        if (cn_x == nn_x and (cn_y-1 == nn_y or cn_y+1 == nn_y)) or (cn_y == nn_y and (cn_x-1 == nn_x or cn_x+1 == nn_y)):
             return False
 
         return True

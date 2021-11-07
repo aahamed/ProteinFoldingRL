@@ -51,10 +51,12 @@ def test_pull_ur():
     env.reset()
     chain = [ (2,2), (2,3), (2,4) ]
     env.set_chain( chain, seq)
+    env.render()
     # pull node 1 up and then right (UR = 1)
     action = ( 1, 1 )
     # TODO
     env.step_new( action )
+    env.render()
     exp_chain = [ (3, 3), (3, 4), (2, 4) ]
     assert env.verify_chain( exp_chain )
     print( 'Test passed!' )

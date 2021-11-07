@@ -644,6 +644,24 @@ class Pulling2DEnv(gym.Env):
 
         return False
 
+    def check_collision(self, next_move):
+        y, x = next_move
+
+        #out of bounds
+        if x >= self.grid_length or x < 0 or y < 0 or y >= self.grid_length:
+            #logger.warn('Your agent was out of bounds! Ending the episode.')
+            #self.collisions += 1
+            return True
+        else:
+            #pair = ((0,0), 'H')
+            for pair in self.state:
+                state_coord = pair[0]
+                if state_coord == next_move:
+                    #self.collisions += 1
+                    return True
+
+        return False
+
     def get_invalid_move(self, current_node, left_node, right_node):
 
         cn_y, cn_x = current_node
@@ -675,18 +693,26 @@ class Pulling2DEnv(gym.Env):
         #UL
         if action == 0:
             new_node = (y+1,x)
+            if self.check_collision(new_node):
+                new_node = (y, x+1)
 
         #UR
         elif action == 1:
             new_node = (y+1,x)
+            if self.check_collision(new_node):
+                new_node = (y, x-1)
 
         #DL
         elif action == 2:
             new_node = (y-1,x)
+            if self.check_collision(new_node):
+                new_node = (y, x+1)
 
         #DR
         elif action == 3:
             new_node = (y-1,x)
+            if self.check_collision(new_node):
+                new_node = (y, x-1)
         
         return new_node
 

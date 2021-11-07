@@ -32,15 +32,15 @@ def test_set_chain():
     env = Pulling2DEnv( seq )
     env.reset()
     chain = [ (2,2), (2,3), (2,4) ]
-    env.set_chain( chain )
+    env.set_chain( chain, seq)
     env.render()
     chain = [ (1,3), (2,3), (2, 4) ]
-    env.set_chain( chain )
+    env.set_chain( chain, seq)
     env.render()
     seq = 'HPHPP'
     env = Pulling2DEnv( seq )
     chain = [ (1, 1), (2, 1), (2, 2), (2,3), (2, 4) ]
-    env.set_chain( chain )
+    env.set_chain( chain, seq)
     env.render()
     print( 'Test passed!' )
 
@@ -50,12 +50,12 @@ def test_pull_ur():
     env = Pulling2DEnv( seq )
     env.reset()
     chain = [ (2,2), (2,3), (2,4) ]
-    env.set_chain( chain )
-    # pull node 1 up and then right
-    action = ( 1, 'UR' )
+    env.set_chain( chain, seq)
+    # pull node 1 up and then right (UR = 1)
+    action = ( 1, 1 )
     # TODO
-    # env.step( action )
-    exp_chain = [ (1, 3), (1, 4), (2, 4) ]
+    env.step_new( action )
+    exp_chain = [ (3, 3), (3, 4), (2, 4) ]
     assert env.verify_chain( exp_chain )
     print( 'Test passed!' )
 

@@ -341,54 +341,56 @@ class Pulling2DEnv(gym.Env):
             
             current_node = next_move
             pointer = node - 1
-            left_node = self.state[pointer][0]
-            closest_node = True
-            #update left side of chain
-            while(self.node_update(current_node, left_node)):
-
-                #update the left node with the node two spots closer to the other node
-                #this means we do not have an already looked at spot for the next iteration
-                if closest_node is True:
-                    new_pos = self.get_intermediate(current_node, pull_dir)
-                    self.state[pointer][0] = new_pos
-                    closest_node = False
-                    old_locations_left.append(left_node)
-                else:
-                    old_location = old_locations_left.pop(0)
-                    self.state[pointer][0] = old_location
-                    old_locations_left.append(left_node)
-
-                
-                #use the newly updated left node as the next check in the next loop
-                current_node = self.state[pointer][0]
-                pointer -= 1
-                if pointer < 0:
-                    break
+            if pointer >= 0:
                 left_node = self.state[pointer][0]
+                closest_node = True
+                #update left side of chain
+                while(self.node_update(current_node, left_node)):
+
+                    #update the left node with the node two spots closer to the other node
+                    #this means we do not have an already looked at spot for the next iteration
+                    if closest_node is True:
+                        new_pos = self.get_intermediate(current_node, pull_dir)
+                        self.state[pointer][0] = new_pos
+                        closest_node = False
+                        old_locations_left.append(left_node)
+                    else:
+                        old_location = old_locations_left.pop(0)
+                        self.state[pointer][0] = old_location
+                        old_locations_left.append(left_node)
+
+                    
+                    #use the newly updated left node as the next check in the next loop
+                    current_node = self.state[pointer][0]
+                    pointer -= 1
+                    if pointer < 0:
+                        break
+                    left_node = self.state[pointer][0]
 
             current_node = next_move
             pointer = node + 1
-            right_node = self.state[pointer][0]
-            closest_node = True
-            #update right side of chain
-            while(self.node_update(current_node, right_node)):
-
-                if closest_node is True:
-                    new_pos = self.get_intermediate(current_node, pull_dir)
-                    self.state[pointer][0] = new_pos
-                    closest_node = False
-                    old_locations_right.append(right_node)
-                else:
-                    old_location = old_locations_right.pop(0)
-                    self.state[pointer][0] = old_location
-                    old_locations_right.append(right_node)
-                
-                #use the newly updated right node as the next check in the next loop
-                current_node = self.state[pointer][0]
-                pointer += 1
-                if pointer == len(self.state):
-                    break
+            if pointer < len(self.state):
                 right_node = self.state[pointer][0]
+                closest_node = True
+                #update right side of chain
+                while(self.node_update(current_node, right_node)):
+
+                    if closest_node is True:
+                        new_pos = self.get_intermediate(current_node, pull_dir)
+                        self.state[pointer][0] = new_pos
+                        closest_node = False
+                        old_locations_right.append(right_node)
+                    else:
+                        old_location = old_locations_right.pop(0)
+                        self.state[pointer][0] = old_location
+                        old_locations_right.append(right_node)
+                    
+                    #use the newly updated right node as the next check in the next loop
+                    current_node = self.state[pointer][0]
+                    pointer += 1
+                    if pointer == len(self.state):
+                        break
+                    right_node = self.state[pointer][0]
 
         grid = self._draw_grid_new(self.state)
         #TODO: what do we do with self.done?

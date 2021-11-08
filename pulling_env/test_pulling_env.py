@@ -102,6 +102,7 @@ def main():
     test_set_chain()
     test_pull_ur()
     test_pull_long()
+    invalid_pull()
 
 if __name__ == '__main__':
     main()

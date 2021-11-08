@@ -90,15 +90,18 @@ def test_pull_long():
     assert env.verify_chain( exp_chain )
     print( 'Test passed!' )
 
+def test_collision():
+    pass
+
 def invalid_pull():
-    print( 'Test pull upper right node 3' )
+    print( 'Test pull bottom left node 2' )
     seq = 'HPHHH'
     env = Pulling2DEnv( seq )
     env.reset()
     chain = [ (1,1), (2,1), (3,1), (3,2), (3,3) ]
     env.set_chain( chain, seq)
     env.render()
-    # pull node 3 up and then right (UR = 1)
+    # pull node 3 up and then bottom left (BL = 2)
     action = ( 2, 2 )
     # TODO
     _, reward, _, _ = env.step( action )
@@ -108,6 +111,26 @@ def invalid_pull():
     assert env.verify_chain( exp_chain )
     print( 'Test passed!' )
 
+def special_pull():
+
+    print( 'Test pull bottom left node 0' )
+    seq = 'HPHHHH'
+    env = Pulling2DEnv( seq )
+    env.reset()
+    chain = [ (1,1), (1,2), (1,3), (0,3), (0,4), (1,4) ]
+    env.set_chain(chain, seq)
+    env.render()
+
+    #pull node 0 bottom left (BL = 2)
+    action = (0, 2)
+
+    env.step( action )
+    env.render()
+    exp_chain = [ (2,0), (1,0), (1,1), (1,2), (1,3), (1,4) ]
+    assert env.verify_chain( exp_chain )
+    print( 'Test passed!' )
+
+
 
 def main():
     test_reset()
@@ -116,6 +139,7 @@ def main():
     test_pull_ur()
     test_pull_long()
     invalid_pull()
+    special_pull()
 
 if __name__ == '__main__':
     main()

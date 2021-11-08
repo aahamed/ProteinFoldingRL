@@ -97,11 +97,11 @@ def invalid_pull():
     env.reset()
     chain = [ (1,1), (2,1), (3,1), (3,2), (3,3) ]
     env.set_chain( chain, seq)
-    _, reward, _, _ = env.render()
+    env.render()
     # pull node 3 up and then right (UR = 1)
     action = ( 2, 2 )
     # TODO
-    env.step( action )
+    _, reward, _, _ = env.step( action )
     env.render()
     exp_chain = [ (1,1), (2,1), (3,1), (3,2), (3,3)]
     assert reward == -2

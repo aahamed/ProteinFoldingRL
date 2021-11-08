@@ -490,7 +490,6 @@ class Pulling2DEnv(gym.Env):
             for pair in self.state:
                 state_coord = pair[0]
                 if state_coord == next_move:
-                    print(state_coord, next_move)
                     #self.collisions += 1
                     return True
 
@@ -513,7 +512,7 @@ class Pulling2DEnv(gym.Env):
         cn_y, cn_x = current_node
         nn_y, nn_x = next_node
 
-        if (cn_x == nn_x and (cn_y-1 == nn_y or cn_y+1 == nn_y)) or (cn_y == nn_y and (cn_x-1 == nn_x or cn_x+1 == nn_y)):
+        if (cn_x == nn_x and ((cn_y-1 >= 0 and cn_y-1 == nn_y) or (cn_y+1 < len(self.state) and cn_y+1 == nn_y))) or (cn_y == nn_y and ((cn_x-1 >= 0 and cn_x-1 == nn_x) or (cn_x+1 < len(self.state) and cn_x+1 == nn_y))):
             return False
 
         return True
@@ -540,7 +539,6 @@ class Pulling2DEnv(gym.Env):
         elif action == 2:
             new_node = (y-1,x)
             if self.check_collision(new_node):
-                print(self.state)
                 new_node = (y, x+1)
 
         #DR

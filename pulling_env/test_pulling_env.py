@@ -78,6 +78,23 @@ def test_pull_long():
     assert env.verify_chain( exp_chain )
     print( 'Test passed!' )
 
+def invalid_pull()
+    print( 'Test pull upper right node 3' )
+    seq = 'HPHHH'
+    env = Pulling2DEnv( seq )
+    env.reset()
+    chain = [ (1,1), (2,1), (3,1), (3,2), (3,3) ]
+    env.set_chain( chain, seq)
+    env.render()
+    # pull node 3 up and then right (UR = 1)
+    action = ( 2, 2 )
+    # TODO
+    env.step_new( action )
+    env.render()
+    exp_chain = [ (1,1), (2,1), (3,1), (3,2), (3,3)]
+    assert env.verify_chain( exp_chain )
+    print( 'Test passed!' )
+
 
 def main():
     test_reset()

@@ -483,7 +483,7 @@ class Pulling2DEnv(gym.Env):
         collision = self.get_collision(next_move) # Collision signal
 
         # if the new location doesn't have any adjacent nodes
-        if collision is False:
+        if collision is False and (node != 0 and node != len(self.state) - 1):
             collision = self.get_invalid_move(next_move, self.state[node - 1][0], self.state[node + 1][0])
 
         #update chain, go to next state

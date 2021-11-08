@@ -531,13 +531,13 @@ class Pulling2DEnv(gym.Env):
         elif action == 1:
             new_node = (y+1,x)
             if self.check_collision(new_node):
-                print(self.state)
                 new_node = (y, x-1)
 
         #DL
         elif action == 2:
             new_node = (y-1,x)
             if self.check_collision(new_node):
+                print(self.state)
                 new_node = (y, x+1)
 
         #DR

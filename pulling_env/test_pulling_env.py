@@ -90,7 +90,7 @@ def test_pull_long():
     assert env.verify_chain( exp_chain )
     print( 'Test passed!' )
 
-def invalid_pull()
+def invalid_pull():
     print( 'Test pull upper right node 3' )
     seq = 'HPHHH'
     env = Pulling2DEnv( seq )

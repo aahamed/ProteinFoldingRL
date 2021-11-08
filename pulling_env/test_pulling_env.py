@@ -101,7 +101,7 @@ def invalid_pull()
     # pull node 3 up and then right (UR = 1)
     action = ( 2, 2 )
     # TODO
-    env.step_new( action )
+    env.step( action )
     env.render()
     exp_chain = [ (1,1), (2,1), (3,1), (3,2), (3,3)]
     assert env.verify_chain( exp_chain )

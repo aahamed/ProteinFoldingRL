@@ -33,36 +33,7 @@ class Pulling2DEnv(gym.Env):
     """A 2-dimensional lattice environment from Dill and Lau, 1989
     [dill1989lattice]_.
 
-    It follows an absolute Cartesian coordinate system, the location of
-    the polymer is stated independently from one another. Thus, we have
-    four actions (left, right, up, and down) and a chance of collision.
-
-    The environment will first place the initial polymer at the origin. Then,
-    for each step, agents place another polymer to the lattice. An episode
-    ends when all polymers are placed, i.e. when the length of the action
-    chain is equal to the length of the input sequence minus 1. We then
-    compute the reward using the energy minimization rule while accounting
-    for the collisions and traps.
-
-    Attributes
-    ----------
-    seq : str
-        Polymer sequence describing a particular protein.
-    state : OrderedDict
-        Dictionary of the current polymer chain with coordinates and
-        polymer type (H or P).
-    actions : list
-        List of actions performed by the model.
-    collisions : int
-        Number of collisions incurred by the model.
-    trapped : int
-        Number of times the agent was trapped.
-    grid_length : int
-        Length of one side of the grid.
-    midpoint : tuple
-        Coordinate containing the midpoint of the grid.
-    grid : numpy.ndarray
-        Actual grid containing the polymer chain.
+    TODO
 
     .. [dill1989lattice] Lau, K.F., Dill, K.A.: A lattice statistical
     mechanics model of the conformational and se quence spaces of proteins.
@@ -121,11 +92,6 @@ class Pulling2DEnv(gym.Env):
                          (trap_penalty, type(trap_penalty)))
             raise
 
-        # Grid attributes 
-        # if len(seq) % 2 == 0:
-        #     self.grid_length = len(seq) + 3
-        # else:
-        #     self.grid_length = len(seq) + 2
         self.grid_length = len( seq ) + 2 * BUFFER
         self.midpoint = (int((self.grid_length - 1) / 2), int((self.grid_length - 1) / 2))
 
@@ -137,109 +103,6 @@ class Pulling2DEnv(gym.Env):
         # Initialize values
         self.reset()
 
-    def step(self, action):
-        """Updates the current chain with the specified action.
-
-        The action supplied by the agent should be an integer from 0
-        to 3. In this case:
-            - 0 : left
-            - 1 : down
-            - 2 : up
-            - 3 : right
-        The best way to remember this is to note that they are similar to the
-        'h', 'j', 'k', and 'l' keys in vim.
-
-        This method returns a set of values similar to the OpenAI gym, that
-        is, a tuple :code:`(observations, reward, done, info)`.
-
-        The observations are arranged as a :code:`numpy.ndarray` matrix, more
-        suitable for agents built using convolutional neural networks. The
-        'H' is represented as :code:`1`s whereas the 'P's as :code:`-1`s.
-        However, for the actual chain, that is, an :code:`OrderedDict` and
-        not its grid-like representation, can be accessed from
-        :code:`info['state_chain]`.
-
-        The reward is calculated at the end of every episode, that is, when
-        the length of the chain is equal to the length of the input sequence.
-
-        Parameters
-        ----------
-        action : int, {0, 1, 2, 3}
-            Specifies the position where the next polymer will be placed
-            relative to the previous one:
-                - 0 : left
-                - 1 : down
-                - 2 : up
-                - 3 : right
-
-        Returns
-        -------
-        numpy.ndarray
-            Current state of the lattice.
-        int or None
-            Reward for the current episode.
-        bool
-            Control signal when the episode ends.
-        dict
-            Additional information regarding the environment.
-
-        Raises
-        ------
-        AssertionError
-            When the specified action is invalid.
-        IndexError
-            When :code:`step()` is still called even if done signal
-            is already :code:`True`.
-        """
-        if not self.action_space.contains(action):
-            raise ValueError("%r (%s) invalid" % (action, type(action)))
-
-        self.last_action = action
-        is_trapped = False # Trap signal
-        collision = False  # Collision signal
-        # Obtain coordinate of previous polymer
-        x, y = next(reversed(self.state))
-        # Get all adjacent coords and next move based on action
-        adj_coords = self._get_adjacent_coords((x, y))
-        next_move = adj_coords[action]
-        # Detects for collision or traps in the given coordinate
-        idx = len(self.state)
-        trans_x, trans_y = tuple(sum(x) for x in zip(self.midpoint, next_move))
-        if next_move in self.state:
-            self.collisions += 1
-            collision = True
-        elif trans_x >= self.grid_length or trans_x < 0 or trans_y < 0 or trans_y >= self.grid_length:
-            logger.warn('Your agent was out of bounds! Ending the episode.')
-            self.collisions += 1
-            collision = True
-        else:
-            self.actions.append(action)
-            try:
-                self.previous_state = self.state.copy()
-                self.state.update({next_move : self.seq[idx]})
-            except IndexError:
-                logger.error('All molecules have been placed! Nothing can be added to the protein chain.')
-                raise
-
-            if set(self._get_adjacent_coords(next_move).values()).issubset(self.state.keys()):
-                logger.warn('Your agent was trapped! Ending the episode.')
-                self.trapped += 1
-                is_trapped = True
-
-        # Set-up return values
-        grid = self._draw_grid(self.state)
-        self.done = True if (len(self.state) == len(self.seq) or is_trapped) else False
-        reward = self._compute_reward(is_trapped, collision)
-        info = {
-            'chain_length' : len(self.state),
-            'seq_length'   : len(self.seq),
-            'collisions'   : self.collisions,
-            'actions'      : [ACTION_TO_STR[i] for i in self.actions],
-            'is_trapped'   : is_trapped,
-            'state_chain'  : self.state
-        }
-
-        return (grid, reward, self.done, info)
 
     def reset(self):
         """Resets the environment"""
@@ -331,27 +194,6 @@ class Pulling2DEnv(gym.Env):
         }
 
         return adjacent_coords
-
-    def _draw_grid_old(self, chain):
-        """Constructs a grid with the current chain
-
-        Parameters
-        ----------
-        chain : OrderedDict
-            Current chain/state
-
-        Returns
-        -------
-        numpy.ndarray
-            Grid of shape :code:`(n, n)` with the chain inside
-        """
-        for coord, poly in chain.items():
-            trans_x, trans_y = tuple(sum(x) for x in zip(self.midpoint, coord))
-            # Recall that a numpy array works by indexing the rows first
-            # before the columns, that's why we interchange.
-            self.grid[(trans_y, trans_x)] = POLY_TO_INT[poly]
-
-        return np.flipud(self.grid)
 
     def set_chain( self, chain, seq):
         '''
@@ -469,7 +311,7 @@ class Pulling2DEnv(gym.Env):
         reward = - gibbs_energy
         return int(reward)
 
-    def step_new( self, action ):
+    def step( self, action ):
         '''
         New step function for pulling environment
         '''
@@ -561,18 +403,7 @@ class Pulling2DEnv(gym.Env):
             'state_chain'  : self.state
         }
 
-        return (grid, reward, self.done, info)
-            
-
-        # else:
-        # if ACTION_TO_STR[ pull_dir ] == 'UR':
-        #     pass
-        #     # check if pull is valid
-        #     # check if corner is free
-        #     # if corner is not free, perform pull and we are done
-        #     # if corner is free, need to pull entire chain until valid config is reached
-        # else:
-        #     assert False and 'Unsupported action'
+        return (grid, reward, self.done, info)   
     
     def verify_chain( self, exp_chain ):
         '''

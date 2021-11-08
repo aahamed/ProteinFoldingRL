@@ -512,7 +512,9 @@ class Pulling2DEnv(gym.Env):
         cn_y, cn_x = current_node
         nn_y, nn_x = next_node
 
-        if (cn_x == nn_x and ((cn_y-1 >= 0 and cn_y-1 == nn_y) or (cn_y+1 < len(self.state) and cn_y+1 == nn_y))) or (cn_y == nn_y and ((cn_x-1 >= 0 and cn_x-1 == nn_x) or (cn_x+1 < len(self.state) and cn_x+1 == nn_y))):
+        print(current_node, next_node)
+
+        if (cn_x == nn_x and (cn_y-1 == nn_y or cn_y+1 == nn_y)) or (cn_y == nn_y and (cn_x-1 == nn_x or cn_x+1 == nn_y)):
             return False
 
         return True

@@ -515,6 +515,7 @@ class Pulling2DEnv(gym.Env):
         print(current_node, next_node)
 
         if (cn_x == nn_x and (cn_y-1 == nn_y or cn_y+1 == nn_y)) or (cn_y == nn_y and (cn_x-1 == nn_x or cn_x+1 == nn_y)):
+            print("Entered here")
             return False
 
         return True

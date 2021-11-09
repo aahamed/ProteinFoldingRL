@@ -223,7 +223,7 @@ class Pulling2DEnv(gym.Env):
         collision = self.get_collision(next_move) # Collision signal
 
         # if the new location doesn't have any adjacent nodes
-        if collision is False:
+        if collision is False and (node != 0 and node != len(self.chain) - 1):
             collision = self.get_invalid_move(next_move, self.chain[node - 1][0], self.chain[node + 1][0])
 
         #update chain, go to next state
@@ -239,54 +239,56 @@ class Pulling2DEnv(gym.Env):
             
             current_node = next_move
             pointer = node - 1
-            left_node = self.chain[pointer][0]
-            closest_node = True
-            #update left side of chain
-            while(self.node_update(current_node, left_node)):
-
-                #update the left node with the node two spots closer to the other node
-                #this means we do not have an already looked at spot for the next iteration
-                if closest_node is True:
-                    new_pos = self.get_intermediate(current_node, pull_dir)
-                    self.chain[pointer][0] = new_pos
-                    closest_node = False
-                    old_locations_left.append(left_node)
-                else:
-                    old_location = old_locations_left.pop(0)
-                    self.chain[pointer][0] = old_location
-                    old_locations_left.append(left_node)
-
-                
-                #use the newly updated left node as the next check in the next loop
-                current_node = self.chain[pointer][0]
-                pointer -= 1
-                if pointer < 0:
-                    break
+            if pointer >= 0:
                 left_node = self.chain[pointer][0]
+                closest_node = True
+                #update left side of chain
+                while(self.node_update(current_node, left_node)):
+
+                    #update the left node with the node two spots closer to the other node
+                    #this means we do not have an already looked at spot for the next iteration
+                    if closest_node is True:
+                        new_pos = self.get_intermediate(current_node, pull_dir)
+                        self.chain[pointer][0] = new_pos
+                        closest_node = False
+                        old_locations_left.append(left_node)
+                    else:
+                        old_location = old_locations_left.pop(0)
+                        self.chain[pointer][0] = old_location
+                        old_locations_left.append(left_node)
+
+                    
+                    #use the newly updated left node as the next check in the next loop
+                    current_node = self.chain[pointer][0]
+                    pointer -= 1
+                    if pointer < 0:
+                        break
+                    left_node = self.chain[pointer][0]
 
             current_node = next_move
             pointer = node + 1
-            right_node = self.chain[pointer][0]
-            closest_node = True
-            #update right side of chain
-            while(self.node_update(current_node, right_node)):
-
-                if closest_node is True:
-                    new_pos = self.get_intermediate(current_node, pull_dir)
-                    self.chain[pointer][0] = new_pos
-                    closest_node = False
-                    old_locations_right.append(right_node)
-                else:
-                    old_location = old_locations_right.pop(0)
-                    self.chain[pointer][0] = old_location
-                    old_locations_right.append(right_node)
-                
-                #use the newly updated right node as the next check in the next loop
-                current_node = self.chain[pointer][0]
-                pointer += 1
-                if pointer == len(self.chain):
-                    break
+            if pointer < len(self.chain):
                 right_node = self.chain[pointer][0]
+                closest_node = True
+                #update right side of chain
+                while(self.node_update(current_node, right_node)):
+
+                    if closest_node is True:
+                        new_pos = self.get_intermediate(current_node, pull_dir)
+                        self.chain[pointer][0] = new_pos
+                        closest_node = False
+                        old_locations_right.append(right_node)
+                    else:
+                        old_location = old_locations_right.pop(0)
+                        self.chain[pointer][0] = old_location
+                        old_locations_right.append(right_node)
+                    
+                    #use the newly updated right node as the next check in the next loop
+                    current_node = self.chain[pointer][0]
+                    pointer += 1
+                    if pointer == len(self.chain):
+                        break
+                    right_node = self.chain[pointer][0]
 
         grid = self._draw_grid_new(self.chain)
         #TODO: what do we do with self.done?
@@ -397,9 +399,9 @@ class Pulling2DEnv(gym.Env):
         ln_y, ln_x = left_node
         rn_y, rn_x = right_node
 
-        if (cn_x == ln_x and (cn_y-1 == ln_y or cn_y+1 == ln_y)) or (cn_y == ln_y and (cn_x-1 == ln_x or cn_x+1 == ln_y)):
+        if (cn_x == ln_x and (cn_y-1 == ln_y or cn_y+1 == ln_y)) or (cn_y == ln_y and (cn_x-1 == ln_x or cn_x+1 == ln_x)):
             return False
-        elif (cn_x == rn_x and (cn_y-1 == rn_y or cn_y+1 == rn_y)) or (cn_y == rn_y and (cn_x-1 == rn_x or cn_x+1 == rn_y)):
+        elif (cn_x == rn_x and (cn_y-1 == rn_y or cn_y+1 == rn_y)) or (cn_y == rn_y and (cn_x-1 == rn_x or cn_x+1 == rn_x)):
             return False
 
         return True
@@ -408,7 +410,7 @@ class Pulling2DEnv(gym.Env):
         cn_y, cn_x = current_node
         nn_y, nn_x = next_node
 
-        if (cn_x == nn_x and (cn_y-1 == nn_y or cn_y+1 == nn_y)) or (cn_y == nn_y and (cn_x-1 == nn_x or cn_x+1 == nn_y)):
+        if (cn_x == nn_x and (cn_y-1 == nn_y or cn_y+1 == nn_y)) or (cn_y == nn_y and (cn_x-1 == nn_x or cn_x+1 == nn_x)):
             return False
 
         return True

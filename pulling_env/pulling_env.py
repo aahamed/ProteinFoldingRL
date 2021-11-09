@@ -16,7 +16,7 @@ from six import StringIO
 # Human-readable
 ACTION_TO_STR = {
     0 : 'UL', 1 : 'UR',
-    2 : 'DL', 3 : 'DR'}
+    2 : 'BL', 3 : 'BR'}
 
 STR_TO_ACTION = {
     'UL': 0, 'UR': 1,
@@ -191,6 +191,35 @@ class Pulling2DEnv(gym.Env):
             return True
         return False
 
+    def pull_chain( self, node, pull_dir, flag='forward' ):
+        '''
+        pull chain
+        :param node: node to pull
+        :param pull_dir: direction to pull
+        :param flag: either forward or backward. If forward
+        pull nodes > node o.w. pull nodes < node
+        '''
+        assert flag in ['forward', 'backward']
+
+        def get_next_node( node ):
+            next_node = node+1 if flag=='forward' else node-1
+            if next_node >= 0 and next_node <= len( self.seq ):
+                return next_node
+            return None
+
+        diag_coords = self._get_diag_coords(self.chain[node][0])
+        next_move = diag_coords[pull_dir]
+        
+        curr_node_coord = next_move
+        next_node = get_next_node( node )
+        if next_node:
+            next_node_coord = self.chain[next_node][0]
+            closest_node = True
+            while not self.is_adjacent( curr_node_coord, next_node_coord ):
+                # TODO
+                pass
+
+
     def step( self, action ):
         '''
         New step function for pulling environment
@@ -217,15 +246,14 @@ class Pulling2DEnv(gym.Env):
             old_locations_right = [self.chain[node][0]]
             self.chain[node][0] = next_move
 
-            #update left
-            
+            #update left 
             current_node = next_move
             pointer = node - 1
             if pointer >= 0:
                 left_node = self.chain[pointer][0]
                 closest_node = True
                 #update left side of chain
-                while(self.node_update(current_node, left_node)):
+                while not self.is_adjacent(current_node, left_node):
 
                     #update the left node with the node two spots closer to the other node
                     #this means we do not have an already looked at spot for the next iteration
@@ -247,13 +275,14 @@ class Pulling2DEnv(gym.Env):
                         break
                     left_node = self.chain[pointer][0]
 
+            # update right
             current_node = next_move
             pointer = node + 1
             if pointer < len(self.chain):
                 right_node = self.chain[pointer][0]
                 closest_node = True
                 #update right side of chain
-                while(self.node_update(current_node, right_node)):
+                while not self.is_adjacent(current_node, right_node):
 
                     if closest_node is True:
                         new_pos = self.get_intermediate(current_node, pull_dir)
@@ -402,15 +431,6 @@ class Pulling2DEnv(gym.Env):
         # For move to be valid; next_move must be adjacent to a neighboring node
         if self.is_adjacent( next_move, prev_node_coord ) or \
                 self.is_adjacent( next_move, next_node_coord ):
-            return False
-
-        return True
-
-    def node_update(self, current_node, next_node):
-        cn_y, cn_x = current_node
-        nn_y, nn_x = next_node
-
-        if (cn_x == nn_x and (cn_y-1 == nn_y or cn_y+1 == nn_y)) or (cn_y == nn_y and (cn_x-1 == nn_x or cn_x+1 == nn_x)):
             return False
 
         return True

@@ -501,9 +501,9 @@ class Pulling2DEnv(gym.Env):
         ln_y, ln_x = left_node
         rn_y, rn_x = right_node
 
-        if (cn_x == ln_x and (cn_y-1 == ln_y or cn_y+1 == ln_y)) or (cn_y == ln_y and (cn_x-1 == ln_x or cn_x+1 == ln_y)):
+        if (cn_x == ln_x and (cn_y-1 == ln_y or cn_y+1 == ln_y)) or (cn_y == ln_y and (cn_x-1 == ln_x or cn_x+1 == ln_x)):
             return False
-        elif (cn_x == rn_x and (cn_y-1 == rn_y or cn_y+1 == rn_y)) or (cn_y == rn_y and (cn_x-1 == rn_x or cn_x+1 == rn_y)):
+        elif (cn_x == rn_x and (cn_y-1 == rn_y or cn_y+1 == rn_y)) or (cn_y == rn_y and (cn_x-1 == rn_x or cn_x+1 == rn_x)):
             return False
 
         return True
@@ -514,7 +514,7 @@ class Pulling2DEnv(gym.Env):
 
         print(current_node, next_node)
 
-        if (cn_x == nn_x and (cn_y-1 == nn_y or cn_y+1 == nn_y)) or (cn_y == nn_y and (cn_x-1 == nn_x or cn_x+1 == nn_y)):
+        if (cn_x == nn_x and (cn_y-1 == nn_y or cn_y+1 == nn_y)) or (cn_y == nn_y and (cn_x-1 == nn_x or cn_x+1 == nn_x)):
             print("Entered here")
             return False
 

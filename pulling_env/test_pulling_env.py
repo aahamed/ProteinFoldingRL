@@ -245,7 +245,6 @@ def invalid_pull():
     # pull node 3 up and then bottom left (BL = 2)
     node, pull_dir = 2, STR_TO_ACTION[ 'BL' ]
     action = ( node, pull_dir )
-    # TODO
     _, reward, _, _ = env.step( action )
     env.render()
     exp_chain = [ (1,1), (2,1), (3,1), (3,2), (3,3)]
@@ -264,7 +263,8 @@ def special_pull():
     env.render()
 
     #pull node 0 bottom left (BL = 2)
-    action = (0, 2)
+    node, pull_dir = 0, STR_TO_ACTION[ 'BL' ]
+    action = ( node, pull_dir )
 
     env.step( action )
     env.render()

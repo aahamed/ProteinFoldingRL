@@ -172,29 +172,6 @@ class Pulling2DEnv(gym.Env):
         if mode != 'human':
             return outfile
 
-    def _get_adjacent_coords(self, coords):
-        """Obtains all adjacent coordinates of the current position
-
-        Parameters
-        ----------
-        coords : 2-tuple
-            Coordinates (X-y) of the current position
-
-        Returns
-        -------
-        dictionary
-            All adjacent coordinates
-        """
-        x, y = coords
-        adjacent_coords = {
-            0 : (x - 1, y),
-            1 : (x, y - 1),
-            2 : (x, y + 1),
-            3 : (x + 1, y),
-        }
-
-        return adjacent_coords
-
     def set_chain( self, chain ):
         '''
         Construct a grid from chain
@@ -208,6 +185,11 @@ class Pulling2DEnv(gym.Env):
             self.chain.append([chain[index], self.seq[index]])
         for i, (( row, col ), _) in enumerate( self.chain ):
             self.grid[ row, col ] = POLY_TO_INT[ self.seq[i] ]
+
+    def is_end_node( self, node ):
+        if node == 0 or node == (len( self.seq ) -1):
+            return True
+        return False
 
     def step( self, action ):
         '''
@@ -223,8 +205,8 @@ class Pulling2DEnv(gym.Env):
         collision = self.get_collision(next_move) # Collision signal
 
         # if the new location doesn't have any adjacent nodes
-        if collision is False and (node != 0 and node != len(self.chain) - 1):
-            collision = self.get_invalid_move(next_move, self.chain[node - 1][0], self.chain[node + 1][0])
+        if collision is False and not self.is_end_node(node):
+            collision = self.is_invalid_move(next_move, node)
 
         #update chain, go to next state
         if collision is False:
@@ -293,7 +275,6 @@ class Pulling2DEnv(gym.Env):
         grid = self._draw_grid_new(self.chain)
         #TODO: what do we do with self.done?
         self.done = False
-        # self.done = True if (len(self.chain) == len(self.seq) or is_trapped) else False
         reward = self._compute_reward(False, collision)
         info = {
             'chain_length' : len(self.chain),
@@ -392,16 +373,35 @@ class Pulling2DEnv(gym.Env):
                     return True
 
         return False
+    
+    def get_adjacent_coords(self, coords):
+        """
+        Obtains all adjacent coordinates of the current position
+        """
+        y, x = coords
+        adjacent_coords = [
+            (y, x-1),
+            (y-1, x),
+            (y, x+1),
+            (y+1, x),
+        ]
 
-    def get_invalid_move(self, current_node, left_node, right_node):
+        return adjacent_coords
 
-        cn_y, cn_x = current_node
-        ln_y, ln_x = left_node
-        rn_y, rn_x = right_node
+    def is_adjacent( self, c1, c2 ):
+        '''
+        check if c1 and c2 are adjacent
+        '''
+        return c1 in self.get_adjacent_coords( c2 )
+        
 
-        if (cn_x == ln_x and (cn_y-1 == ln_y or cn_y+1 == ln_y)) or (cn_y == ln_y and (cn_x-1 == ln_x or cn_x+1 == ln_x)):
-            return False
-        elif (cn_x == rn_x and (cn_y-1 == rn_y or cn_y+1 == rn_y)) or (cn_y == rn_y and (cn_x-1 == rn_x or cn_x+1 == rn_x)):
+    def is_invalid_move( self, next_move, current_node ):
+        prev_node_coord = self.chain[current_node-1][0]
+        next_node_coord = self.chain[current_node+1][0]
+        
+        # For move to be valid; next_move must be adjacent to a neighboring node
+        if self.is_adjacent( next_move, prev_node_coord ) or \
+                self.is_adjacent( next_move, next_node_coord ):
             return False
 
         return True

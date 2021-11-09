@@ -195,7 +195,7 @@ class Pulling2DEnv(gym.Env):
 
         return adjacent_coords
 
-    def set_chain( self, chain, seq):
+    def set_chain( self, chain ):
         '''
         Construct a grid from chain
 
@@ -203,113 +203,11 @@ class Pulling2DEnv(gym.Env):
         to i^th node in sequence
         '''
         self.grid = np.zeros( ( self.grid_length, self.grid_length ), dtype=int )
-        self.chain = chain
-        self.state = []
+        self.chain = []
         for index in range(len(chain)):
-            self.state.append([chain[index], seq[index]])
-        for i, ( row, col ) in enumerate( self.chain ):
+            self.chain.append([chain[index], self.seq[index]])
+        for i, (( row, col ), _) in enumerate( self.chain ):
             self.grid[ row, col ] = POLY_TO_INT[ self.seq[i] ]
-
-    def _compute_reward(self, is_trapped, collision):
-        """Computes the reward for a given time step
-
-        For every timestep, we compute the reward using the following function:
-
-        .. code-block:: python
-
-            reward_t = state_reward 
-                       + collision_penalty
-                       + actual_trap_penalty
-
-        The :code:`state_reward` is only computed at the end of the episode
-        (Gibbs free energy) and its value is :code:`0` for every timestep
-        before that.
-
-        The :code:`collision_penalty` is given when the agent makes an invalid
-        move, i.e. going to a space that is already occupied.
-
-        The :code:`actual_trap_penalty` is computed whenever the agent
-        completely traps itself and has no more moves available. Overall, we
-        still compute for the :code:`state_reward` of the current chain but
-        subtract that with the following equation:
-        :code:`floor(length_of_sequence * trap_penalty)`
-        try:
-
-        Parameters
-        ----------
-        is_trapped : bool
-            Signal indicating if the agent is trapped.
-        collision : bool
-            Collision signal
-
-        Returns
-        -------
-        int
-            Reward function
-        """
-
-        # previous_gibbs = self._compute_free_energy(self.previous_state)
-        # current_gibbs = self._compute_free_energy(self.state)
-        # state_reward = current_gibbs - previous_gibbs 
-        # if state_reward < 0:
-        #     state_reward = 0
-        state_reward = self._compute_free_energy(self.state) if self.done else 0
-        collision_penalty = self.collision_penalty if collision else 0
-        actual_trap_penalty = -floor(len(self.seq) * self.trap_penalty) if is_trapped else 0
-
-        # Compute reward at timestep, the state_reward is originally
-        # negative (Gibbs), so we invert its sign.
-        reward = - state_reward + collision_penalty + actual_trap_penalty
-
-        return reward
-
-    def _compute_free_energy(self, chain):
-        """Computes the Gibbs free energy given the lattice's state
-
-        The free energy is only computed at the end of each episode. This
-        follow the same energy function given by Dill et. al.
-        [dill1989lattice]_
-
-        Recall that the goal is to find the configuration with the lowest
-        energy.
-
-        .. [dill1989lattice] Lau, K.F., Dill, K.A.: A lattice statistical
-        mechanics model of the conformational and se quence spaces of proteins.
-        Marcromolecules 22(10), 3986–3997 (1989)
-
-        Parameters
-        ----------
-        chain : OrderedDict
-            Current chain in the lattice
-
-        Returns
-        -------
-        int
-            Computed free energy
-        """
-        h_polymers = [x for x in chain if chain[x] == 'H']
-        h_pairs = [(x, y) for x in h_polymers for y in h_polymers]
-
-        # Compute distance between all hydrophobic pairs
-        h_adjacent = []
-        for pair in h_pairs:
-            dist = np.linalg.norm(np.subtract(pair[0], pair[1]))
-            if dist == 1.0: # adjacent pairs have a unit distance
-                h_adjacent.append(pair)
-
-        # Get the number of consecutive H-pairs in the string,
-        # these are not included in computing the energy
-        h_consecutive = 0
-        for i in range(1, len(self.state)):
-            if (self.seq[i] == 'H') and (self.seq[i] == self.seq[i-1]):
-                h_consecutive += 1
-
-        # Remove duplicate pairs of pairs and subtract the
-        # consecutive pairs
-        nb_h_adjacent = len(h_adjacent) / 2
-        gibbs_energy = nb_h_adjacent - h_consecutive
-        reward = - gibbs_energy
-        return int(reward)
 
     def step( self, action ):
         '''
@@ -318,7 +216,7 @@ class Pulling2DEnv(gym.Env):
 
         node, pull_dir = action
 
-        diag_coords = self._get_diag_coords(self.state[node][0])
+        diag_coords = self._get_diag_coords(self.chain[node][0])
         next_move = diag_coords[pull_dir]
 
         # if the new location already has a node there
@@ -326,22 +224,22 @@ class Pulling2DEnv(gym.Env):
 
         # if the new location doesn't have any adjacent nodes
         if collision is False:
-            collision = self.get_invalid_move(next_move, self.state[node - 1][0], self.state[node + 1][0])
+            collision = self.get_invalid_move(next_move, self.chain[node - 1][0], self.chain[node + 1][0])
 
         #update chain, go to next state
         if collision is False:
 
             #apply update
             #want to store the previous timesteps nodes as this will be used to update the other nodes
-            old_locations_left = [self.state[node][0]]
-            old_locations_right = [self.state[node][0]]
-            self.state[node][0] = next_move
+            old_locations_left = [self.chain[node][0]]
+            old_locations_right = [self.chain[node][0]]
+            self.chain[node][0] = next_move
 
             #update left
             
             current_node = next_move
             pointer = node - 1
-            left_node = self.state[pointer][0]
+            left_node = self.chain[pointer][0]
             closest_node = True
             #update left side of chain
             while(self.node_update(current_node, left_node)):
@@ -350,57 +248,57 @@ class Pulling2DEnv(gym.Env):
                 #this means we do not have an already looked at spot for the next iteration
                 if closest_node is True:
                     new_pos = self.get_intermediate(current_node, pull_dir)
-                    self.state[pointer][0] = new_pos
+                    self.chain[pointer][0] = new_pos
                     closest_node = False
                     old_locations_left.append(left_node)
                 else:
                     old_location = old_locations_left.pop(0)
-                    self.state[pointer][0] = old_location
+                    self.chain[pointer][0] = old_location
                     old_locations_left.append(left_node)
 
                 
                 #use the newly updated left node as the next check in the next loop
-                current_node = self.state[pointer][0]
+                current_node = self.chain[pointer][0]
                 pointer -= 1
                 if pointer < 0:
                     break
-                left_node = self.state[pointer][0]
+                left_node = self.chain[pointer][0]
 
             current_node = next_move
             pointer = node + 1
-            right_node = self.state[pointer][0]
+            right_node = self.chain[pointer][0]
             closest_node = True
             #update right side of chain
             while(self.node_update(current_node, right_node)):
 
                 if closest_node is True:
                     new_pos = self.get_intermediate(current_node, pull_dir)
-                    self.state[pointer][0] = new_pos
+                    self.chain[pointer][0] = new_pos
                     closest_node = False
                     old_locations_right.append(right_node)
                 else:
                     old_location = old_locations_right.pop(0)
-                    self.state[pointer][0] = old_location
+                    self.chain[pointer][0] = old_location
                     old_locations_right.append(right_node)
                 
                 #use the newly updated right node as the next check in the next loop
-                current_node = self.state[pointer][0]
+                current_node = self.chain[pointer][0]
                 pointer += 1
-                if pointer == len(self.state):
+                if pointer == len(self.chain):
                     break
-                right_node = self.state[pointer][0]
+                right_node = self.chain[pointer][0]
 
-        grid = self._draw_grid_new(self.state)
+        grid = self._draw_grid_new(self.chain)
         #TODO: what do we do with self.done?
         self.done = False
-        # self.done = True if (len(self.state) == len(self.seq) or is_trapped) else False
+        # self.done = True if (len(self.chain) == len(self.seq) or is_trapped) else False
         reward = self._compute_reward(False, collision)
         info = {
-            'chain_length' : len(self.state),
+            'chain_length' : len(self.chain),
             'seq_length'   : len(self.seq),
             'collisions'   : self.collisions,
             'actions'      : [ACTION_TO_STR[i] for i in self.actions],
-            'state_chain'  : self.state
+            'chain'  : self.chain
         }
 
         return (grid, reward, self.done, info)   
@@ -467,9 +365,9 @@ class Pulling2DEnv(gym.Env):
             return True
         else:
             #pair = ((0,0), 'H')
-            for pair in self.state:
-                state_coord = pair[0]
-                if state_coord == next_move:
+            for pair in self.chain:
+                chain_coord = pair[0]
+                if chain_coord == next_move:
                     self.collisions += 1
                     return True
 
@@ -485,9 +383,9 @@ class Pulling2DEnv(gym.Env):
             return True
         else:
             #pair = ((0,0), 'H')
-            for pair in self.state:
-                state_coord = pair[0]
-                if state_coord == next_move:
+            for pair in self.chain:
+                chain_coord = pair[0]
+                if chain_coord == next_move:
                     #self.collisions += 1
                     return True
 
@@ -569,4 +467,99 @@ class Pulling2DEnv(gym.Env):
             # before the columns, that's why we interchange.
             self.grid[(y, x)] = POLY_TO_INT[poly]
             self.chain.append( (y, x) )
+    
+    def _compute_reward(self, is_trapped, collision):
+        """Computes the reward for a given time step
+
+        For every timestep, we compute the reward using the following function:
+
+        .. code-block:: python
+
+            reward_t = state_reward 
+                       + collision_penalty
+                       + actual_trap_penalty
+
+        The :code:`state_reward` is only computed at the end of the episode
+        (Gibbs free energy) and its value is :code:`0` for every timestep
+        before that.
+
+        The :code:`collision_penalty` is given when the agent makes an invalid
+        move, i.e. going to a space that is already occupied.
+
+        The :code:`actual_trap_penalty` is computed whenever the agent
+        completely traps itself and has no more moves available. Overall, we
+        still compute for the :code:`state_reward` of the current chain but
+        subtract that with the following equation:
+        :code:`floor(length_of_sequence * trap_penalty)`
+        try:
+
+        Parameters
+        ----------
+        is_trapped : bool
+            Signal indicating if the agent is trapped.
+        collision : bool
+            Collision signal
+
+        Returns
+        -------
+        int
+            Reward function
+        """
+        state_reward = self._compute_free_energy(self.chain) if self.done else 0
+        collision_penalty = self.collision_penalty if collision else 0
+        actual_trap_penalty = -floor(len(self.seq) * self.trap_penalty) if is_trapped else 0
+
+        # Compute reward at timestep, the state_reward is originally
+        # negative (Gibbs), so we invert its sign.
+        reward = - state_reward + collision_penalty + actual_trap_penalty
+
+        return reward
+
+    def _compute_free_energy(self, chain):
+        """Computes the Gibbs free energy given the lattice's state
+
+        The free energy is only computed at the end of each episode. This
+        follow the same energy function given by Dill et. al.
+        [dill1989lattice]_
+
+        Recall that the goal is to find the configuration with the lowest
+        energy.
+
+        .. [dill1989lattice] Lau, K.F., Dill, K.A.: A lattice statistical
+        mechanics model of the conformational and se quence spaces of proteins.
+        Marcromolecules 22(10), 3986–3997 (1989)
+
+        Parameters
+        ----------
+        chain : OrderedDict
+            Current chain in the lattice
+
+        Returns
+        -------
+        int
+            Computed free energy
+        """
+        h_polymers = [x for x in chain if chain[x] == 'H']
+        h_pairs = [(x, y) for x in h_polymers for y in h_polymers]
+
+        # Compute distance between all hydrophobic pairs
+        h_adjacent = []
+        for pair in h_pairs:
+            dist = np.linalg.norm(np.subtract(pair[0], pair[1]))
+            if dist == 1.0: # adjacent pairs have a unit distance
+                h_adjacent.append(pair)
+
+        # Get the number of consecutive H-pairs in the string,
+        # these are not included in computing the energy
+        h_consecutive = 0
+        for i in range(1, len(self.chain)):
+            if (self.seq[i] == 'H') and (self.seq[i] == self.seq[i-1]):
+                h_consecutive += 1
+
+        # Remove duplicate pairs of pairs and subtract the
+        # consecutive pairs
+        nb_h_adjacent = len(h_adjacent) / 2
+        gibbs_energy = nb_h_adjacent - h_consecutive
+        reward = - gibbs_energy
+        return int(reward)
 

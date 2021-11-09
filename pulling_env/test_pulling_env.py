@@ -32,15 +32,15 @@ def test_set_chain():
     env = Pulling2DEnv( seq )
     env.reset()
     chain = [ (2,2), (2,3), (2,4) ]
-    env.set_chain( chain, seq)
+    env.set_chain( chain )
     env.render()
     chain = [ (1,3), (2,3), (2, 4) ]
-    env.set_chain( chain, seq)
+    env.set_chain( chain )
     env.render()
     seq = 'HPHPP'
     env = Pulling2DEnv( seq )
     chain = [ (1, 1), (2, 1), (2, 2), (2,3), (2, 4) ]
-    env.set_chain( chain, seq)
+    env.set_chain( chain )
     env.render()
     print( 'Test passed!' )
 
@@ -51,26 +51,75 @@ def test_pull_ur():
     env = Pulling2DEnv( seq )
     env.reset()
     chain = [ (2,2), (2,3), (2,4) ]
-    env.set_chain( chain, seq)
+    env.set_chain( chain )
     env.render()
     # pull node 1 up and then right (UR = 1)
-    action = ( 1, 1 )
+    node, pull_dir = 1, STR_TO_ACTION[ 'UR' ]
+    action = ( node, pull_dir )
     env.step( action )
     env.render()
-    exp_chain = [ (1, 3), (1, 4), (2, 4) ]
+    exp_chain = [ (1,3), (1,4), (2,4) ]
     assert env.verify_chain( exp_chain )
     print( 'Case1 Passed!' )
     print( '\nCase2:' )
     env.reset()
     chain = [ (1,3), (2,3), (2,4) ]
-    env.set_chain( chain, seq)
+    env.set_chain( chain )
     env.render()
-    # pull node 1 up and then right (UR = 1)
-    action = ( 1, 1 )
     env.step( action )
     env.render()
-    exp_chain = [ (1, 3), (1, 4), (2, 4) ]
+    exp_chain = [ (1,3), (1,4), (2,4) ]
     assert env.verify_chain( exp_chain )
+    print( 'Case2 Passed!' )
+    print( '\nCase3:' )
+    env.reset()
+    chain = [ (2,2), (2,3), (1,3) ]
+    env.set_chain( chain )
+    env.render()
+    env.step( action )
+    env.render()
+    exp_chain = [ (2,4), (1,4), (1,3) ]
+    assert env.verify_chain( exp_chain )
+    print( 'Case3 Passed!' )
+    print( 'Test passed!' )
+
+def test_pull_ul():
+    print( 'Test pull upper left node 1' )
+    print( 'Case1:' )
+    seq = 'HPH'
+    env = Pulling2DEnv( seq )
+    env.reset()
+    chain = [ (2,2), (2,3), (2,4) ]
+    env.set_chain( chain )
+    env.render()
+    # pull node 1 up and then left
+    node, pull_dir = 1, STR_TO_ACTION[ 'UL' ]
+    action = ( node, pull_dir )
+    env.step( action )
+    env.render()
+    exp_chain = [ (2,2), (1,2), (1,3) ]
+    assert env.verify_chain( exp_chain )
+    print( 'Case1 Passed!' )
+    print( '\nCase2:' )
+    env.reset()
+    chain = [ (2,2), (2,3), (1,3) ]
+    env.set_chain( chain )
+    env.render()
+    env.step( action )
+    env.render()
+    exp_chain = [ (2,2), (1,2), (1,3) ]
+    assert env.verify_chain( exp_chain )
+    print( 'Case2 Passed!' )
+    print( '\nCase3:' )
+    env.reset()
+    chain = [ (1,3), (2,3), (2,4) ]
+    env.set_chain( chain )
+    env.render()
+    env.step( action )
+    env.render()
+    exp_chain = [ (1,3), (1,2), (2,2) ]
+    assert env.verify_chain( exp_chain )
+    print( 'Case3 Passed!' )
     print( 'Test passed!' )
 
 def test_pull_long():
@@ -79,7 +128,7 @@ def test_pull_long():
     env = Pulling2DEnv( seq )
     env.reset()
     chain = [ (2,1), (2,2), (2,3), (2,4), (2,5) ]
-    env.set_chain( chain, seq)
+    env.set_chain( chain )
     env.render()
     # pull node 3 up and then right (UR = 1)
     action = ( 3, 1 )
@@ -96,6 +145,7 @@ def main():
     test_render()
     test_set_chain()
     test_pull_ur()
+    test_pull_ul()
     test_pull_long()
 
 if __name__ == '__main__':

@@ -110,6 +110,7 @@ def test_pull_ul():
     exp_chain = [ (2,2), (1,2), (1,3) ]
     assert env.verify_chain( exp_chain )
     print( 'Case2 Passed!' )
+    # import pdb; pdb.set_trace()
     print( '\nCase3:' )
     env.reset()
     chain = [ (1,3), (2,3), (2,4) ]
@@ -118,6 +119,86 @@ def test_pull_ul():
     env.step( action )
     env.render()
     exp_chain = [ (1,3), (1,2), (2,2) ]
+    assert env.verify_chain( exp_chain )
+    print( 'Case3 Passed!' )
+    print( 'Test passed!' )
+
+def test_pull_br():
+    print( 'Test pull bottom right node 1' )
+    print( 'Case1:' )
+    seq = 'HPH'
+    env = Pulling2DEnv( seq )
+    env.reset()
+    chain = [ (2,2), (2,3), (2,4) ]
+    env.set_chain( chain )
+    env.render()
+    # pull node 1 bottom right
+    node, pull_dir = 1, STR_TO_ACTION[ 'BR' ]
+    action = ( node, pull_dir )
+    env.step( action )
+    env.render()
+    exp_chain = [ (3,3), (3,4), (2,4) ]
+    assert env.verify_chain( exp_chain )
+    print( 'Case1 Passed!' )
+    print( '\nCase2:' )
+    env.reset()
+    chain = [ (3,3), (2,3), (2,4) ]
+    env.set_chain( chain )
+    env.render()
+    env.step( action )
+    env.render()
+    exp_chain = [ (3,3), (3,4), (2,4) ]
+    assert env.verify_chain( exp_chain )
+    print( 'Case2 Passed!' )
+    # import pdb; pdb.set_trace()
+    print( '\nCase3:' )
+    env.reset()
+    chain = [ (2,2), (2,3), (3,3) ]
+    env.set_chain( chain )
+    env.render()
+    env.step( action )
+    env.render()
+    exp_chain = [ (2,4), (3,4), (3,3) ]
+    assert env.verify_chain( exp_chain )
+    print( 'Case3 Passed!' )
+    print( 'Test passed!' )
+
+def test_pull_bl():
+    print( 'Test pull bottom left node 1' )
+    print( 'Case1:' )
+    seq = 'HPH'
+    env = Pulling2DEnv( seq )
+    env.reset()
+    chain = [ (2,2), (2,3), (2,4) ]
+    env.set_chain( chain )
+    env.render()
+    # pull node 1 bottom left
+    node, pull_dir = 1, STR_TO_ACTION[ 'BL' ]
+    action = ( node, pull_dir )
+    env.step( action )
+    env.render()
+    exp_chain = [ (2,2), (3,2), (3,3) ]
+    assert env.verify_chain( exp_chain )
+    print( 'Case1 Passed!' )
+    print( '\nCase2:' )
+    env.reset()
+    chain = [ (2,2), (2,3), (3,3) ]
+    env.set_chain( chain )
+    env.render()
+    env.step( action )
+    env.render()
+    exp_chain = [ (2,2), (3,2), (3,3) ]
+    assert env.verify_chain( exp_chain )
+    print( 'Case2 Passed!' )
+    # import pdb; pdb.set_trace()
+    print( '\nCase3:' )
+    env.reset()
+    chain = [ (2,2), (2,3), (1,3) ]
+    env.set_chain( chain )
+    env.render()
+    env.step( action )
+    env.render()
+    exp_chain = [ (2,2), (3,2), (3,3) ]
     assert env.verify_chain( exp_chain )
     print( 'Case3 Passed!' )
     print( 'Test passed!' )
@@ -131,7 +212,8 @@ def test_pull_long():
     env.set_chain( chain )
     env.render()
     # pull node 3 up and then right (UR = 1)
-    action = ( 3, 1 )
+    node, pull_dir = 3, STR_TO_ACTION[ 'UR' ]
+    action = ( node, pull_dir )
     # TODO
     env.step( action )
     env.render()
@@ -151,7 +233,8 @@ def invalid_pull():
     env.set_chain( chain )
     env.render()
     # pull node 3 up and then bottom left (BL = 2)
-    action = ( 2, 2 )
+    node, pull_dir = 2, STR_TO_ACTION[ 'BL' ]
+    action = ( node, pull_dir )
     # TODO
     _, reward, _, _ = env.step( action )
     env.render()
@@ -186,7 +269,9 @@ def main():
     test_render()
     test_set_chain()
     test_pull_ur()
-    # test_pull_ul()
+    test_pull_ul()
+    test_pull_br()
+    test_pull_bl()
     test_pull_long()
     invalid_pull()
     special_pull()

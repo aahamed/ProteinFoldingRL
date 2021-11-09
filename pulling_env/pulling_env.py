@@ -20,7 +20,7 @@ ACTION_TO_STR = {
 
 STR_TO_ACTION = {
     'UL': 0, 'UR': 1,
-    'DL': 2, 'DR': 3 }
+    'BL': 2, 'BR': 3 }
 
 POLY_TO_INT = {
     'H' : 1, 'P' : -1

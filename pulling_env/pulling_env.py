@@ -203,7 +203,7 @@ class Pulling2DEnv(gym.Env):
 
         def get_next_node( node ):
             next_node = node+1 if flag=='forward' else node-1
-            if next_node >= 0 and next_node <= len( self.seq ):
+            if next_node >= 0 and next_node < len( self.seq ):
                 return next_node
             return None
 

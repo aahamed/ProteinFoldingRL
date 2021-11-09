@@ -81,6 +81,16 @@ def test_pull_ur():
     exp_chain = [ (2,4), (1,4), (1,3) ]
     assert env.verify_chain( exp_chain )
     print( 'Case3 Passed!' )
+    print( '\nCase4:' )
+    env.reset()
+    chain = [ (2,4), (2,3), (2,2) ]
+    env.set_chain( chain )
+    env.render()
+    env.step( action )
+    env.render()
+    exp_chain = [ (2,4), (1,4), (1,3) ]
+    assert env.verify_chain( exp_chain )
+    print( 'Case4 Passed!' )
     print( 'Test passed!' )
 
 def test_pull_ul():

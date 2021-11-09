@@ -338,7 +338,7 @@ class Pulling2DEnv(gym.Env):
         Parameters
         ----------
         coords : 2-tuple
-            Coordinates (X-y) of the current position
+            Coordinates (y,x) of the current position
 
         Returns
         -------

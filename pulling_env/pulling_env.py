@@ -111,6 +111,7 @@ class Pulling2DEnv(gym.Env):
         self.actions = []
         self.collisions = 0
         self.trapped = 0
+        self.done = False
         # self.done = len(self.seq) == 1
 
         self.grid = np.zeros(shape=(self.grid_length, self.grid_length), dtype=int)

@@ -7,7 +7,7 @@ from stable_baselines3.common.evaluation import evaluate_policy
 
 # Create environment
 # env = gym.make('LunarLander-v2')
-seq = 'HHHH' # Our input sequence
+seq = 'HHPPHH' # Our input sequence
 seq = seq.upper()
 env = Pulling2DEnv(seq)
 
@@ -34,7 +34,6 @@ mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episode
 obs = env.reset()
 i = 0
 while not env.done or i > 1000:
-	print("Haha")
 	action, _states = model.predict(obs, deterministic=True)
 	obs, rewards, dones, info = env.step( action )
 	env.render()

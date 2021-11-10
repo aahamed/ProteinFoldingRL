@@ -448,6 +448,8 @@ class Pulling2DEnv(gym.Env):
         for coord, poly in chain:
             y, x = coord
             self.grid[(y, x)] = POLY_TO_INT[poly]
+
+        return self.grid
     
     def _compute_reward(self, is_trapped, collision):
         """Computes the reward for a given time step

@@ -120,7 +120,7 @@ class Pulling2DEnv(gym.Env):
         # place entire chain on grid 
         for i in range( len( self.seq ) ):
             self.grid[ self.mid_row, BUFFER + i ] = POLY_TO_INT[ self.seq[i] ]
-            self.chain.append( (self.mid_row, BUFFER+i) )
+            self.chain.append( [(self.mid_row, BUFFER+i), self.seq[i]] )
 
         self.last_action = None
         self.timestep = 0

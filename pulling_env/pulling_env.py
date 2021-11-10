@@ -490,9 +490,9 @@ class Pulling2DEnv(gym.Env):
         int
             Reward function
         """
-        # state_reward = self._compute_free_energy(self.chain) if self.done else 0
-        new_energy = self._compute_free_energy(self.chain)
-        state_reward = max(new_energy - self.old_energy,0)
+        state_reward = self._compute_free_energy(self.chain) if self.done else 0
+        # new_energy = self._compute_free_energy(self.chain)
+        # state_reward = max(new_energy - self.old_energy,0)
         collision_penalty = self.collision_penalty if collision else 0
         actual_trap_penalty = -floor(len(self.seq) * self.trap_penalty) if is_trapped else 0
 

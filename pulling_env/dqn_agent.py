@@ -1,5 +1,5 @@
 import gym
-import pulling_env
+from pulling_env import Pulling2DEnv
 
 from stable_baselines3 import A2C
 from stable_baselines3.common.evaluation import evaluate_policy

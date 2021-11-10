@@ -160,7 +160,6 @@ def test_pull_br():
     exp_chain = [ (3,3), (3,4), (2,4) ]
     assert env.verify_chain( exp_chain )
     print( 'Case2 Passed!' )
-    # import pdb; pdb.set_trace()
     print( '\nCase3:' )
     env.reset()
     chain = [ (2,2), (2,3), (3,3) ]
@@ -200,7 +199,6 @@ def test_pull_bl():
     exp_chain = [ (2,2), (3,2), (3,3) ]
     assert env.verify_chain( exp_chain )
     print( 'Case2 Passed!' )
-    # import pdb; pdb.set_trace()
     print( '\nCase3:' )
     env.reset()
     chain = [ (2,2), (2,3), (1,3) ]

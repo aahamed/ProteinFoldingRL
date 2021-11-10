@@ -191,10 +191,11 @@ class Pulling2DEnv(gym.Env):
             return True
         return False
 
-    def pull_chain( self, node, pull_dir, flag='forward' ):
+    def pull_chain( self, node, old_locations, pull_dir, flag='forward' ):
         '''
         pull chain
         :param node: node to pull
+        :param old_locations: stack containing old location of node
         :param pull_dir: direction to pull
         :param flag: either forward or backward. If forward
         pull nodes > node o.w. pull nodes < node
@@ -206,18 +207,33 @@ class Pulling2DEnv(gym.Env):
             if next_node >= 0 and next_node < len( self.seq ):
                 return next_node
             return None
-
-        diag_coords = self._get_diag_coords(self.chain[node][0])
-        next_move = diag_coords[pull_dir]
-        
-        curr_node_coord = next_move
+ 
+        curr_node_coord = self.chain[node][0]
         next_node = get_next_node( node )
-        if next_node:
+
+        # if this is end node, nothing to do
+        if next_node is None: return
+   
+        # pull nodes in direction specified by flag until valid configuration is reached
+        next_node_coord = self.chain[next_node][0]
+        closest_node = True
+        while not self.is_adjacent( curr_node_coord, next_node_coord ):
+            if closest_node:
+                # if closest node to pulled node; move to free corner
+                new_pos = self.get_intermediate( curr_node_coord, pull_dir )
+                self.chain[next_node][0] = new_pos
+                closest_node = False
+                old_locations.append( next_node_coord )
+            else:
+                # for other nodes just move the node up by 2 positions
+                new_pos = old_locations.pop(0)
+                self.chain[next_node][0] = new_pos
+                old_locations.append( next_node_coord )
+
+            curr_node_coord = self.chain[next_node][0]
+            next_node = get_next_node( next_node )
+            if next_node is None: break
             next_node_coord = self.chain[next_node][0]
-            closest_node = True
-            while not self.is_adjacent( curr_node_coord, next_node_coord ):
-                # TODO
-                pass
 
 
     def step( self, action ):
@@ -231,75 +247,19 @@ class Pulling2DEnv(gym.Env):
         next_move = diag_coords[pull_dir]
 
         # if the new location already has a node there
-        collision = self.get_collision(next_move) # Collision signal
+        collision = self.get_collision(next_move, count=True) # Collision signal
 
         # if the new location doesn't have any adjacent nodes
         if collision is False and not self.is_end_node(node):
             collision = self.is_invalid_move(next_move, node)
-
-        #update chain, go to next state
-        if collision is False:
-
-            #apply update
-            #want to store the previous timesteps nodes as this will be used to update the other nodes
+        
+        # perform pull operation
+        if not collision:
             old_locations_left = [self.chain[node][0]]
             old_locations_right = [self.chain[node][0]]
             self.chain[node][0] = next_move
-
-            #update left 
-            current_node = next_move
-            pointer = node - 1
-            if pointer >= 0:
-                left_node = self.chain[pointer][0]
-                closest_node = True
-                #update left side of chain
-                while not self.is_adjacent(current_node, left_node):
-
-                    #update the left node with the node two spots closer to the other node
-                    #this means we do not have an already looked at spot for the next iteration
-                    if closest_node is True:
-                        new_pos = self.get_intermediate(current_node, pull_dir)
-                        self.chain[pointer][0] = new_pos
-                        closest_node = False
-                        old_locations_left.append(left_node)
-                    else:
-                        old_location = old_locations_left.pop(0)
-                        self.chain[pointer][0] = old_location
-                        old_locations_left.append(left_node)
-
-                    
-                    #use the newly updated left node as the next check in the next loop
-                    current_node = self.chain[pointer][0]
-                    pointer -= 1
-                    if pointer < 0:
-                        break
-                    left_node = self.chain[pointer][0]
-
-            # update right
-            current_node = next_move
-            pointer = node + 1
-            if pointer < len(self.chain):
-                right_node = self.chain[pointer][0]
-                closest_node = True
-                #update right side of chain
-                while not self.is_adjacent(current_node, right_node):
-
-                    if closest_node is True:
-                        new_pos = self.get_intermediate(current_node, pull_dir)
-                        self.chain[pointer][0] = new_pos
-                        closest_node = False
-                        old_locations_right.append(right_node)
-                    else:
-                        old_location = old_locations_right.pop(0)
-                        self.chain[pointer][0] = old_location
-                        old_locations_right.append(right_node)
-                    
-                    #use the newly updated right node as the next check in the next loop
-                    current_node = self.chain[pointer][0]
-                    pointer += 1
-                    if pointer == len(self.chain):
-                        break
-                    right_node = self.chain[pointer][0]
+            self.pull_chain( node, old_locations_left, pull_dir, flag='backward' )
+            self.pull_chain( node, old_locations_right, pull_dir, flag='forward' )
 
         grid = self._draw_grid_new(self.chain)
         #TODO: what do we do with self.done?
@@ -326,7 +286,7 @@ class Pulling2DEnv(gym.Env):
         if len( exp_chain ) != len( self.chain ): return False
 
         for i in range( len( exp_chain ) ):
-            if exp_chain[i] != self.chain[i]:
+            if exp_chain[i] != self.chain[i][0]:
                 return False
         
         chain_map = { (row, col):POLY_TO_INT[self.seq[i]] for i, (row, col) 
@@ -365,43 +325,24 @@ class Pulling2DEnv(gym.Env):
 
         return diag_coords
 
-    def get_collision(self, next_move):
-        #trans_x, trans_y = tuple(sum(x) for x in zip(self.midpoint, next_move))
-        
+    def get_collision(self, next_move, count=False):
         y, x = next_move
 
         #out of bounds
         if x >= self.grid_length or x < 0 or y < 0 or y >= self.grid_length:
             logger.warn('Your agent was out of bounds! Ending the episode.')
-            self.collisions += 1
+            if count: self.collisions += 1
             return True
         else:
             #pair = ((0,0), 'H')
             for pair in self.chain:
                 chain_coord = pair[0]
                 if chain_coord == next_move:
-                    self.collisions += 1
+                    if count: self.collisions += 1
                     return True
 
         return False
 
-    def check_collision(self, next_move):
-        y, x = next_move
-
-        #out of bounds
-        if x >= self.grid_length or x < 0 or y < 0 or y >= self.grid_length:
-            #logger.warn('Your agent was out of bounds! Ending the episode.')
-            #self.collisions += 1
-            return True
-        else:
-            #pair = ((0,0), 'H')
-            for pair in self.chain:
-                chain_coord = pair[0]
-                if chain_coord == next_move:
-                    #self.collisions += 1
-                    return True
-
-        return False
     
     def get_adjacent_coords(self, coords):
         """
@@ -420,6 +361,9 @@ class Pulling2DEnv(gym.Env):
     def is_adjacent( self, c1, c2 ):
         '''
         check if c1 and c2 are adjacent
+        :param c1: coordinate 1 in ( y, x )
+        :param c2: coordinate 2 in ( y, x )
+        returns True if c1 and c2 are adjacent; false o.w.
         '''
         return c1 in self.get_adjacent_coords( c2 )
         
@@ -444,25 +388,25 @@ class Pulling2DEnv(gym.Env):
         #UL
         if action == 0:
             new_node = (y+1,x)
-            if self.check_collision(new_node):
+            if self.get_collision(new_node):
                 new_node = (y, x+1)
 
         #UR
         elif action == 1:
             new_node = (y+1,x)
-            if self.check_collision(new_node):
+            if self.get_collision(new_node):
                 new_node = (y, x-1)
 
         #DL
         elif action == 2:
             new_node = (y-1,x)
-            if self.check_collision(new_node):
+            if self.get_collision(new_node):
                 new_node = (y, x+1)
 
         #DR
         elif action == 3:
             new_node = (y-1,x)
-            if self.check_collision(new_node):
+            if self.get_collision(new_node):
                 new_node = (y, x-1)
         
         return new_node
@@ -481,14 +425,10 @@ class Pulling2DEnv(gym.Env):
             Grid of shape :code:`(n, n)` with the chain inside
         """
         self.grid = np.zeros( ( self.grid_length, self.grid_length ), dtype=int )
-        self.chain = []
+        self.chain = chain
         for coord, poly in chain:
-            #trans_x, trans_y = tuple(sum(x) for x in zip(self.midpoint, coord))
             y, x = coord
-            # Recall that a numpy array works by indexing the rows first
-            # before the columns, that's why we interchange.
             self.grid[(y, x)] = POLY_TO_INT[poly]
-            self.chain.append( (y, x) )
     
     def _compute_reward(self, is_trapped, collision):
         """Computes the reward for a given time step

@@ -280,6 +280,7 @@ def test_pull_multiple():
     env.render()
 
     #pull node 0 bottom left (BL = 2)
+    print( 'Pull bottom left node 0' )
     node, pull_dir = 0, STR_TO_ACTION[ 'BL' ]
     action = ( node, pull_dir )
 
@@ -289,6 +290,7 @@ def test_pull_multiple():
     assert env.verify_chain( exp_chain )
 
     # pull node 2 bottom right
+    print( 'Pull bottom right node 2' )
     node, pull_dir = 2, STR_TO_ACTION[ 'BR' ]
     action = ( node, pull_dir )
     env.step( action )
@@ -297,6 +299,7 @@ def test_pull_multiple():
     assert env.verify_chain( exp_chain )
     
     # pull node 0 upper right
+    print( 'Pull upper right node 0' )
     node, pull_dir = 0, STR_TO_ACTION[ 'UR' ]
     action = ( node, pull_dir )
     env.step( action )
@@ -331,6 +334,41 @@ def test_stop_action():
     assert done
     assert reward == 0
 
+def test_timesteps():
+    print( 'Test  timesteps' )
+    seq = 'HPHPHP'
+    env = Pulling2DEnv( seq )
+    env.reset()
+    chain = [ (1,1), (1,2), (1,3), (0,3), (0,4), (1,4) ]
+    env.set_chain(chain)
+    env.render()
+    assert env.timestep == 0
+
+    #pull node 0 bottom left (BL = 2)
+    print( 'Pull node 0 bottom left' )
+    node, pull_dir = 0, STR_TO_ACTION[ 'BL' ]
+    action = ( node, pull_dir )
+    _, reward, done, _ = env.step( action )
+    env.render()
+    exp_chain = [ (2,0), (1,0), (1,1), (1,2), (1,3), (1,4) ]
+    assert env.verify_chain( exp_chain )
+    assert env.timestep == 1
+    assert not done
+    assert reward == 0
+
+    print( 'Update timestep to max timesteps-1' )
+    env.timestep = env.max_timesteps - 1
+    print( 'Pull node 2 bottom right' )
+    # pull node 2 bottom right
+    node, pull_dir = 2, STR_TO_ACTION[ 'BR' ]
+    action = ( node, pull_dir )
+    _, reward, done, _ = env.step( action )
+    env.render()
+    exp_chain = [ (2,0), (2,1), (2,2), (1,2), (1,3), (1,4) ]
+    assert env.verify_chain( exp_chain )
+    assert done
+    assert reward == 0
+
 
 def main():
     test_reset()
@@ -345,6 +383,7 @@ def main():
     special_pull()
     test_pull_multiple()
     test_stop_action()
+    test_timesteps()
 
 if __name__ == '__main__':
     main()

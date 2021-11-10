@@ -123,6 +123,8 @@ class Pulling2DEnv(gym.Env):
             self.chain.append( (self.mid_row, BUFFER+i) )
 
         self.last_action = None
+        self.timestep = 0
+        self.max_timesteps = 2 * len( self.seq )
         return self.grid
 
     def render(self, mode='human'):
@@ -243,7 +245,8 @@ class Pulling2DEnv(gym.Env):
         '''
         New step function for pulling environment
         '''
-
+        
+        self.timestep += 1
         node, pull_dir = action
 
         # action is stop; end episode
@@ -279,7 +282,7 @@ class Pulling2DEnv(gym.Env):
 
         grid = self._draw_grid_new(self.chain)
         #TODO: what do we do with self.done?
-        self.done = False
+        self.done = self.timestep == self.max_timesteps
         reward = self._compute_reward(False, collision)
         info = {
             'chain_length' : len(self.chain),

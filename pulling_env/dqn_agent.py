@@ -35,7 +35,7 @@ obs = env.reset()
 i = 0
 while not env.done or i > 1000:
 	print("Haha")
-    action, _states = model.predict(obs, deterministic=True)
-    obs, rewards, dones, info = env.step( action )
-    env.render()
-    i += 1
+	action, _states = model.predict(obs, deterministic=True)
+	obs, rewards, dones, info = env.step( action )
+	env.render()
+	i += 1

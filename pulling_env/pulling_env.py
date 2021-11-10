@@ -499,7 +499,7 @@ class Pulling2DEnv(gym.Env):
         # Compute reward at timestep, the state_reward is originally
         # negative (Gibbs), so we invert its sign.
         reward = - state_reward + collision_penalty + actual_trap_penalty
-        self.old_energy = new_energy
+        #self.old_energy = new_energy
 
         return reward
 

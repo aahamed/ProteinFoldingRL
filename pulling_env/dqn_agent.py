@@ -34,6 +34,7 @@ mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episode
 obs = env.reset()
 i = 0
 while not env.done or i > 1000:
+	print("Haha")
     action, _states = model.predict(obs, deterministic=True)
     obs, rewards, dones, info = env.step( action )
     env.render()

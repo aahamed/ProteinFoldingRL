@@ -32,6 +32,7 @@ mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episode
 
 # Enjoy trained agent
 obs = env.reset()
+env.render()
 i = 0
 while not env.done or i > 1000:
 	action, _states = model.predict(obs, deterministic=True)

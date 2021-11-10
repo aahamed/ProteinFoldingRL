@@ -13,7 +13,7 @@ def test_reset():
         for j in range( len( state[0] ) ):
             if i == env.mid_row and j >= BUFFER and j < BUFFER + len( seq ):
                 assert state[ i, j ] == POLY_TO_INT[ seq[j-BUFFER] ]
-                assert env.chain[j-BUFFER] == (i, j)
+                assert env.chain[j-BUFFER][0] == (i, j)
             else:
                 assert state[ i, j ] == 0
     print( 'Test passed!' )

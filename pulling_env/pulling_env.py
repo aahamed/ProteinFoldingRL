@@ -125,7 +125,7 @@ class Pulling2DEnv(gym.Env):
 
         self.last_action = None
         self.timestep = 0
-        self.max_timesteps = 2 * len( self.seq )
+        self.max_timesteps = 3 * len( self.seq )
         return self.grid
 
     def render(self, mode='human'):

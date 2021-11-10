@@ -270,6 +270,66 @@ def special_pull():
     assert env.verify_chain( exp_chain )
     print( 'Test passed!' )
 
+def test_pull_multiple():
+    print( 'Test pulling multiple times in a row' )
+    seq = 'HPHPHP'
+    env = Pulling2DEnv( seq )
+    env.reset()
+    chain = [ (1,1), (1,2), (1,3), (0,3), (0,4), (1,4) ]
+    env.set_chain(chain)
+    env.render()
+
+    #pull node 0 bottom left (BL = 2)
+    node, pull_dir = 0, STR_TO_ACTION[ 'BL' ]
+    action = ( node, pull_dir )
+
+    env.step( action )
+    env.render()
+    exp_chain = [ (2,0), (1,0), (1,1), (1,2), (1,3), (1,4) ]
+    assert env.verify_chain( exp_chain )
+
+    # pull node 2 bottom right
+    node, pull_dir = 2, STR_TO_ACTION[ 'BR' ]
+    action = ( node, pull_dir )
+    env.step( action )
+    env.render()
+    exp_chain = [ (2,0), (2,1), (2,2), (1,2), (1,3), (1,4) ]
+    assert env.verify_chain( exp_chain )
+    
+    # pull node 0 upper right
+    node, pull_dir = 0, STR_TO_ACTION[ 'UR' ]
+    action = ( node, pull_dir )
+    env.step( action )
+    env.render()
+    exp_chain = [ (1,1), (2,1), (2,2), (1,2), (1,3), (1,4) ]
+    assert env.verify_chain( exp_chain )
+    print( 'Test passed!' )
+
+def test_stop_action():
+    print( 'Test stop action' )
+    seq = 'HPHPHP'
+    env = Pulling2DEnv( seq )
+    env.reset()
+    chain = [ (1,1), (1,2), (1,3), (0,3), (0,4), (1,4) ]
+    env.set_chain(chain)
+    env.render()
+
+    #pull node 0 bottom left (BL = 2)
+    print( 'Pull node 0 bottom left' )
+    node, pull_dir = 0, STR_TO_ACTION[ 'BL' ]
+    action = ( node, pull_dir )
+    env.step( action )
+    env.render()
+    exp_chain = [ (2,0), (1,0), (1,1), (1,2), (1,3), (1,4) ]
+    assert env.verify_chain( exp_chain )
+
+    # stop pulling
+    print( 'Stop pulling' )
+    node, pull_dir = 0, STR_TO_ACTION[ 'STOP' ]
+    action = ( node, pull_dir )
+    _, reward, done, _ = env.step( action )
+    assert done
+    assert reward == 0
 
 
 def main():
@@ -283,6 +343,8 @@ def main():
     test_pull_long()
     invalid_pull()
     special_pull()
+    test_pull_multiple()
+    test_stop_action()
 
 if __name__ == '__main__':
     main()

@@ -16,11 +16,13 @@ from six import StringIO
 # Human-readable
 ACTION_TO_STR = {
     0 : 'UL', 1 : 'UR',
-    2 : 'BL', 3 : 'BR'}
+    2 : 'BL', 3 : 'BR',
+    4: 'STOP' }
 
 STR_TO_ACTION = {
     'UL': 0, 'UR': 1,
-    'BL': 2, 'BR': 3 }
+    'BL': 2, 'BR': 3 ,
+    'STOP': 4 }
 
 POLY_TO_INT = {
     'H' : 1, 'P' : -1
@@ -179,6 +181,7 @@ class Pulling2DEnv(gym.Env):
         :param chain: List of (row, col) coordinates. The i^th coord corresponds
         to i^th node in sequence
         '''
+        assert len( chain ) == len( self.seq )
         self.grid = np.zeros( ( self.grid_length, self.grid_length ), dtype=int )
         self.chain = []
         for index in range(len(chain)):
@@ -242,6 +245,19 @@ class Pulling2DEnv(gym.Env):
         '''
 
         node, pull_dir = action
+
+        # action is stop; end episode
+        if ACTION_TO_STR[ pull_dir ] == 'STOP':
+            self.done = True
+            reward = self._compute_reward(False, False)
+            info = {
+                'chain_length' : len(self.chain),
+                'seq_length'   : len(self.seq),
+                'collisions'   : self.collisions,
+                'actions'      : [ACTION_TO_STR[i] for i in self.actions],
+                'chain'  : self.chain
+            }
+            return (self.grid, reward, self.done, info)   
 
         diag_coords = self._get_diag_coords(self.chain[node][0])
         next_move = diag_coords[pull_dir]
@@ -501,7 +517,7 @@ class Pulling2DEnv(gym.Env):
         int
             Computed free energy
         """
-        h_polymers = [x for x in chain if chain[x] == 'H']
+        h_polymers = [c for i, (c, p) in enumerate( chain ) if chain[i][1] == 'H']
         h_pairs = [(x, y) for x in h_polymers for y in h_polymers]
 
         # Compute distance between all hydrophobic pairs

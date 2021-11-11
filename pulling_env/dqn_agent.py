@@ -13,7 +13,7 @@ seq = seq.upper()
 env = Pulling2DEnv(seq, collision_penalty=-1)
 
 # Instantiate the agent
-model = A2C("MlpPolicy", env, verbose=1)
+model = A2C("MlpPolicy", env, verbose=1, learning_rate=0.01)
 model.learn(total_timesteps=int(2e5))
 # Save the agent
 model.save("A2C_pulling")

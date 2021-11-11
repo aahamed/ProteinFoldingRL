@@ -14,7 +14,7 @@ env = Pulling2DEnv(seq)
 
 # Instantiate the agent
 model = A2C("MlpPolicy", env, verbose=1)
-model.learn(total_timesteps=int(2e5))
+model.learn(total_timesteps=int(2e6))
 # Save the agent
 model.save("A2C_pulling")
 del model  # delete trained model to demonstrate loading

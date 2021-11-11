@@ -98,7 +98,7 @@ class Pulling2DEnv(gym.Env):
         self.midpoint = (int((self.grid_length - 1) / 2), int((self.grid_length - 1) / 2))
 
         #[node, action]
-        self.action_space = spaces.MultiDiscrete([ len(seq), 5])
+        self.action_space = spaces.MultiDiscrete([ len(seq), 4])
         self.observation_space = spaces.Box(low=-2, high=1,
                                             shape=(self.grid_length, self.grid_length),
                                             dtype=int)

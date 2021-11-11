@@ -43,7 +43,7 @@ class Pulling2DEnv(gym.Env):
     """
     metadata = {'render.modes': ['human', 'ansi']}
 
-    def __init__(self, seq, collision_penalty=-2, trap_penalty=0.5, pull_reward=0):
+    def __init__(self, seq, collision_penalty=-2, trap_penalty=0.5):
         """Initializes the lattice
 
         Parameters
@@ -96,7 +96,6 @@ class Pulling2DEnv(gym.Env):
 
         self.grid_length = len( seq ) + 2 * BUFFER
         self.midpoint = (int((self.grid_length - 1) / 2), int((self.grid_length - 1) / 2))
-        self.pull_reward = pull_reward
 
         #[node, action]
         self.action_space = spaces.MultiDiscrete([ len(seq), 5])
@@ -255,7 +254,7 @@ class Pulling2DEnv(gym.Env):
         # action is stop; end episode
         if ACTION_TO_STR[ pull_dir ] == 'STOP':
             self.done = True
-            reward = self._compute_reward(False, False, False)
+            reward = self._compute_reward(False, False)
             info = {
                 'chain_length' : len(self.chain),
                 'seq_length'   : len(self.seq),
@@ -286,7 +285,7 @@ class Pulling2DEnv(gym.Env):
         grid = self._draw_grid_new(self.chain)
         #TODO: what do we do with self.done?
         self.done = self.timestep == self.max_timesteps
-        reward = self._compute_reward(False, collision, True)
+        reward = self._compute_reward(False, collision)
         info = {
             'chain_length' : len(self.chain),
             'seq_length'   : len(self.seq),
@@ -454,7 +453,7 @@ class Pulling2DEnv(gym.Env):
 
         return self.grid
     
-    def _compute_reward(self, is_trapped, collision, pulled):
+    def _compute_reward(self, is_trapped, collision):
         """Computes the reward for a given time step
 
         For every timestep, we compute the reward using the following function:
@@ -496,11 +495,10 @@ class Pulling2DEnv(gym.Env):
         # state_reward = max(new_energy - self.old_energy,0)
         collision_penalty = self.collision_penalty if collision else 0
         actual_trap_penalty = -floor(len(self.seq) * self.trap_penalty) if is_trapped else 0
-        pull_reward = self.pull_reward if pulled else 0
 
         # Compute reward at timestep, the state_reward is originally
         # negative (Gibbs), so we invert its sign.
-        reward = - state_reward + collision_penalty + actual_trap_penalty + pull_reward
+        reward = - state_reward + collision_penalty + actual_trap_penalty
         #self.old_energy = new_energy
 
         return reward

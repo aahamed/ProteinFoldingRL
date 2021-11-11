@@ -75,9 +75,9 @@ class Pulling2DEnv(gym.Env):
             if collision_penalty >= 0:
                 raise ValueError("%r (%s) must be negative" %
                                  (collision_penalty, type(collision_penalty)))
-            if not isinstance(collision_penalty, int):
-                raise ValueError("%r (%s) must be of type 'int'" %
-                                 (collision_penalty, type(collision_penalty)))
+            # if not isinstance(collision_penalty, int):
+            #     raise ValueError("%r (%s) must be of type 'int'" %
+            #                      (collision_penalty, type(collision_penalty)))
             self.collision_penalty = collision_penalty
         except TypeError:
             logger.error("%r (%s) must be of type 'int'" %

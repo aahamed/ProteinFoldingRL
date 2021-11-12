@@ -10,7 +10,7 @@ from stable_baselines3.common.evaluation import evaluate_policy
 seq = 'hhppppphhppphppphp' # Our input sequence
 #seq = 'HHPPHH' # Our input sequence
 seq = seq.upper()
-env = Pulling2DEnv(seq, collision_penalty=-.2, early_stopping=-.1)
+env = Pulling2DEnv(seq, collision_penalty=-.1)
 
 # Instantiate the agent
 model = A2C("MlpPolicy", env, verbose=1)

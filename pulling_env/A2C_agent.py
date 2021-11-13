@@ -3,18 +3,21 @@ from pulling_env import Pulling2DEnv
 
 from stable_baselines3 import A2C
 from stable_baselines3.common.evaluation import evaluate_policy
+import time
 
 
 # Create environment
 # env = gym.make('LunarLander-v2')
 seq = 'hhppppphhppphppphp' # Our input sequence
-seq = 'HHPPHHPPHH' # Our input sequence
+seq = 'HHPPHH' # Our input sequence
 seq = seq.upper()
 env = Pulling2DEnv(seq, collision_penalty=-.01)
 
 # Instantiate the agent
 model = A2C("MlpPolicy", env, verbose=1)
+start = time.time()
 model.learn(total_timesteps=int(2e4))
+end = time.time()
 #model.learn(total_timesteps=int(10000))
 # Save the agent
 model.save("A2C_pulling")
@@ -41,3 +44,5 @@ while not env.done or i > 1000:
 	obs, rewards, dones, info = env.step( action )
 	env.render()
 	i += 1
+
+print(f"Total time needed to train: {end-start}")

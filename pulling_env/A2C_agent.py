@@ -16,7 +16,7 @@ env = Pulling2DEnv(seq, collision_penalty=-.01)
 
 # Instantiate the agent
 #model = A2C("MlpPolicy", env, verbose=1)
-model = PPO2("MlpPolicy", env, verbose=1)
+model = PPO("MlpPolicy", env, verbose=1)
 start = time.time()
 model.learn(total_timesteps=int(2e6))
 end = time.time()

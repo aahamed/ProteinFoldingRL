@@ -18,7 +18,7 @@ env = Pulling2DEnv(seq, collision_penalty=-.01)
 #model = A2C("MlpPolicy", env, verbose=1)
 model = PPO("MlpPolicy", env, verbose=1)
 start = time.time()
-model.learn(total_timesteps=int(2e4))
+model.learn(total_timesteps=int(2e5))
 end = time.time()
 #model.learn(total_timesteps=int(10000))
 # Save the agent

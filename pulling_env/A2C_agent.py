@@ -3,18 +3,21 @@ from pulling_env import Pulling2DEnv
 
 from stable_baselines3 import A2C
 from stable_baselines3.common.evaluation import evaluate_policy
+from stable_baselines.common.policies import MlpPolicy
+from stable_baselines import PPO2
 import time
 
 
 # Create environment
 # env = gym.make('LunarLander-v2')
 seq = 'hhppppphhppphppphp' # Our input sequence
-seq = 'HHPPHHPPHH' # Our input sequence
+seq = 'HHHH' # Our input sequence
 seq = seq.upper()
 env = Pulling2DEnv(seq, collision_penalty=-.01)
 
 # Instantiate the agent
-model = A2C("MlpPolicy", env, verbose=1)
+#model = A2C("MlpPolicy", env, verbose=1)
+model = PPO2(MlpPolicy, env, verbose=1)
 start = time.time()
 model.learn(total_timesteps=int(2e6))
 end = time.time()

@@ -3,8 +3,8 @@ from pulling_env import Pulling2DEnv
 
 from stable_baselines3 import A2C
 from stable_baselines3.common.evaluation import evaluate_policy
-from stable_baselines3.common.policies import MlpPolicy
-from stable_baselines3 import PPO2
+from stable_baselines.common.policies import MlpPolicy
+from stable_baselines import PPO2
 import time
 
 

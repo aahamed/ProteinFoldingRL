@@ -9,7 +9,7 @@ import time
 
 # Create environment
 # env = gym.make('LunarLander-v2')
-seq = 'hhppppphhppphppphp' # Our input sequence
+seq = 'phpphphhhphhphhhhh' # Our input sequence
 #seq = 'HHPPHHPPHH' # Our input sequence
 seq = seq.upper()
 env = Pulling2DEnv(seq, collision_penalty=-.01)

@@ -10,7 +10,7 @@ import time
 # Create environment
 # env = gym.make('LunarLander-v2')
 seq = 'hhhpphphphpphphphpph' # Our input sequence
-#seq = 'HHPPHHPPHH' # Our input sequence
+seq = 'HHHH' # Our input sequence
 seq = seq.upper()
 env = Pulling2DEnv(seq, collision_penalty=-.01)
 
@@ -18,7 +18,7 @@ env = Pulling2DEnv(seq, collision_penalty=-.01)
 #model = A2C("MlpPolicy", env, verbose=1)
 model = PPO("MlpPolicy", env, verbose=1)
 start = time.time()
-model.learn(total_timesteps=int(2e6))
+model.learn(total_timesteps=int(2e6), tensorboard_log='.tensorboard')
 end = time.time()
 #model.learn(total_timesteps=int(10000))
 # Save the agent

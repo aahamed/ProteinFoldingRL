@@ -9,18 +9,17 @@ import time
 
 # Create environment
 # env = gym.make('LunarLander-v2')
-seq = 'phpphphhhphhphhhhh' # Our input sequence
-seq = 'HHPPHHPPHH' # Our input sequence
+seq = 'hhhhhhhhhhhhphphpphhpphhpphpphhpphhpphpphhpphhpphphphhhhhhhhhhhh' # Our input sequence
+#seq = 'HHPPHHPPHH' # Our input sequence
 seq = seq.upper()
 env = Pulling2DEnv(seq, collision_penalty=-.01)
 
 # Instantiate the agent
-model = A2C("MlpPolicy", env, verbose=1, tensorboard_log='./tensorboard')
-#model = PPO("MlpPolicy", env, verbose=1, tensorboard_log='./tensorboard')
+#model = A2C("MlpPolicy", env, verbose=1, tensorboard_log='./tensorboard')
+model = PPO("MlpPolicy", env, verbose=1, tensorboard_log='./tensorboard')
 start = time.time()
-model.learn(total_timesteps=int(2e5))
+model.learn(total_timesteps=int(2e7))
 end = time.time()
-#model.learn(total_timesteps=int(10000))
 # Save the agent
 model.save("A2C_pulling")
 del model  # delete trained model to demonstrate loading

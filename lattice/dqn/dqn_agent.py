@@ -3,18 +3,23 @@ from gym_lattice.envs import Lattice2DEnv
 
 from stable_baselines3 import DQN
 from stable_baselines3.common.evaluation import evaluate_policy
+import time
 
 
 # Create environment
 # env = gym.make('LunarLander-v2')
-seq = 'HHPPHHPH' # Our input sequence
+seq = 'HHPPHHHH' # Our input sequence
 seq = seq.upper()
 env = Lattice2DEnv(seq)
 
 # Instantiate the agent
-model = DQN('MlpPolicy', env, verbose=1, exploration_fraction=0.2, exploration_final_eps=0.1)
+model = DQN('MlpPolicy', env, verbose=1,
+    exploration_fraction=0.2, exploration_final_eps=0.1,
+    tensorboard_log='./tensorboard')
 
-model.learn(total_timesteps=int(2e5))
+start = time.time()
+model.learn(total_timesteps=int(2e6))
+end = time.time()
 # Save the agent
 model.save("dqn_lattice")
 del model  # delete trained model to demonstrate loading
@@ -39,3 +44,6 @@ while not env.done or i > 1000:
     obs, rewards, dones, info = env.step( action )
     env.render()
     i += 1
+
+print( f'final energy: {env._compute_free_energy(env.state)}' )
+print( f"Total time needed to train: {end-start:.2f}" )

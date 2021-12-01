@@ -57,5 +57,3 @@ for i in range(5):
 
 with open('HHPPHH.npy', 'wb') as f:
 	np.save(f, np.asarray(total_arr))
-
-with open ('HHPPHH.csv', 'a+')

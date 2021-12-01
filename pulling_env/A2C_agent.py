@@ -12,7 +12,7 @@ import numpy as np
 # Create environment
 # env = gym.make('LunarLander-v2')
 seq = 'phpphphhhphhphhhhh' # Our input sequence
-seq = 'HHPPHH' # Our input sequence
+seq = 'HHPPHHHH' # Our input sequence
 seq = seq.upper()
 env = Pulling2DEnv(seq, collision_penalty=-.01)
 
@@ -55,5 +55,5 @@ for i in range(5):
 	print(f"Total time needed to train: {end-start}")
 	total_arr.append(end-start)
 
-with open('HHPPHH.npy', 'wb') as f:
+with open(f'{seq}.npy', 'wb') as f:
 	np.save(f, np.asarray(total_arr))

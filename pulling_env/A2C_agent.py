@@ -25,7 +25,7 @@ for i in range(5):
 	model = PPO("MlpPolicy", env, verbose=1)
 	#tensorboard_log='./tensorboard'
 	start = time.time()
-	model.learn(total_timesteps=int(2e5))
+	model.learn(total_timesteps=int(2e6))
 	end = time.time()
 	# Save the agent
 	model.save("A2C_pulling")

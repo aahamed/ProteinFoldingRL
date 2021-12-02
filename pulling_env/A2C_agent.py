@@ -12,20 +12,20 @@ import numpy as np
 # Create environment
 # env = gym.make('LunarLander-v2')
 seq = 'phpphphhhphhphhhhh' # Our input sequence
-seq = 'HHPPHHPPHH' # Our input sequence
+seq = 'HHPPHH' # Our input sequence
 seq = seq.upper()
 env = Pulling2DEnv(seq, collision_penalty=-.01)
 
 # Instantiate the agent
-#model = A2C("MlpPolicy", env, verbose=1, tensorboard_log='./tensorboard')
 
 total_arr = []
 
 for i in range(5):
-	model = PPO("MlpPolicy", env, verbose=1)
+	#model = PPO("MlpPolicy", env, verbose=1)
+	model = A2C("MlpPolicy", env, verbose=1)
 	#tensorboard_log='./tensorboard'
 	start = time.time()
-	model.learn(total_timesteps=int(2e6))
+	model.learn(total_timesteps=int(2e4))
 	end = time.time()
 	# Save the agent
 	model.save("A2C_pulling")
@@ -56,5 +56,5 @@ for i in range(5):
 	print(f"Total time needed to train: {end-start}")
 	total_arr.append(end-start)
 
-with open(f'{seq}.npy', 'wb') as f:
+with open(f'{seq}_A2C.npy', 'wb') as f:
 	np.save(f, np.asarray(total_arr))

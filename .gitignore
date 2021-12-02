@@ -132,3 +132,7 @@ dmypy.json
 *.swp
 # zip files
 *.zip
+# tensorboard
+tensorboard
+# .DS_STORE
+.DS_Store

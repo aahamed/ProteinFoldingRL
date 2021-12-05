@@ -1,8 +1,8 @@
 import gym
 from pulling_env import Pulling2DEnv
 
-from stable_baselines3 import A2C
 from stable_baselines3.common.evaluation import evaluate_policy
+from stable_baselines3 import PPO
 import time
 
 import numpy as np
@@ -20,20 +20,20 @@ env = Pulling2DEnv(seq, collision_penalty=-.01)
 total_arr = []
 
 for i in range(5):
-	model = A2C("MlpPolicy", env, verbose=1)
+	model = PPO("MlpPolicy", env, verbose=1)
 	#tensorboard_log='./tensorboard'
 	start = time.time()
 	model.learn(total_timesteps=int(2e6))
 	end = time.time()
 	# Save the agent
-	model.save("A2C_pulling")
+	model.save("PPO_pulling")
 	del model  # delete trained model to demonstrate loading
 
 	# Load the trained agent
 	# NOTE: if you have loading issue, you can pass `print_system_info=True`
 	# to compare the system on which the model was trained vs the current one
 	# model = DQN.load("dqn_lunar", env=env, print_system_info=True)
-	model = A2C.load("A2C_pulling", env=env)
+	model = PPO.load("PPO_pulling", env=env)
 
 	# Evaluate the agent
 	# NOTE: If you use wrappers with your environment that modify rewards,

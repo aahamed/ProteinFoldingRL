@@ -23,7 +23,7 @@ for i in range(5):
 	model = A2C("MlpPolicy", env, verbose=1)
 	#tensorboard_log='./tensorboard'
 	start = time.time()
-	model.learn(total_timesteps=int(2e6))
+	model.learn(total_timesteps=int(2e7))
 	end = time.time()
 	# Save the agent
 	model.save("A2C_pulling")

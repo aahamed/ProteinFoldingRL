@@ -10,7 +10,7 @@ import numpy as np
 
 # Create environment
 # env = gym.make('LunarLander-v2')
-seq = 'phpphphhhphhphhhhh' # Our input sequence
+seq = 'HHHHPPPPHHHHHHHHHHHHPPPPPPHHHHHHHHHHHHPPPHHHHHHHHHHHHPPPHHHHHHHHHHHHPPPHPPHHPPHHPPHPH' # Our input sequence
 #seq = 'HHPPHHPPHH' # Our input sequence
 seq = seq.upper()
 env = Pulling2DEnv(seq, collision_penalty=-.01)

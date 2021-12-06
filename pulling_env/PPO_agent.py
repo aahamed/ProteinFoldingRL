@@ -19,7 +19,7 @@ env = Pulling2DEnv(seq, collision_penalty=-.01)
 
 total_arr = []
 
-for i in range(5):
+for i in range(1):
 	model = PPO("MlpPolicy", env, verbose=1, tensorboard_log='./tensorboard')
 	#tensorboard_log='./tensorboard'
 	start = time.time()
